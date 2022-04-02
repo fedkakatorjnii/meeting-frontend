@@ -31,6 +31,8 @@
       }
     ],
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "object-curly-newline": "off",
+    "object-curly-spacing": "off"
   }
 }
