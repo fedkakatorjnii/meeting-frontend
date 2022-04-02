@@ -1,17 +1,6 @@
 import React from 'react';
+import { Home } from '../Home';
 
-type AppProps = {
-  name: string;
-};
-
-const App: React.FC<AppProps> = (props) => {
-  const { name } = props;
-
-  return (
-    <div>
-      <p>{`Hello, ${name}`}</p>
-    </div>
-  );
-};
+const App: React.FC = () => <Home />;
 
 export { App };
