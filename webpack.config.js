@@ -7,6 +7,7 @@ const config = {
   devtool: "inline-source-map",
   output: {
     path: path.resolve(__dirname, "dist"),
+    publicPath: '/',
     filename: "[name].[contenthash].js",
     uniqueName: "my-application",
   },
@@ -42,6 +43,9 @@ const config = {
         use: "file-loader",
       },
     ],
+  },
+  devServer: {
+    historyApiFallback: true,
   },
   plugins: [
     new HtmlWebpackPlugin({

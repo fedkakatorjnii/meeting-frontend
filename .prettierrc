@@ -1,6 +1,7 @@
 {
   "singleQuote": true,
   "arrowParens": "always",
+  "trailingComma": "all",
   "max-len": 80,
   "tabWidth": 2,
   "useTabs": false
