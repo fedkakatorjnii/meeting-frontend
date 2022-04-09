@@ -6,10 +6,10 @@ import {
   Typography,
   TextField,
   Button,
-  Link,
 } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 
-export const Auth: React.FC = () => {
+export const Signup: React.FC = () => {
   const handleSubmit = () => {
     console.log('hueta');
   };
@@ -89,9 +89,7 @@ export const Auth: React.FC = () => {
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link href="/signin" variant="body2">
-                Already have an account? Sign in
-              </Link>
+              <Link to="/login">Already have an account? Sign in</Link>
             </Grid>
           </Grid>
         </Box>
