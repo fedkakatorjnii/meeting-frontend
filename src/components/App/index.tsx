@@ -1,17 +1,15 @@
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { Home } from '../Home';
+import { Signup } from '../Signup';
+import { Login } from '../Login';
 
-type AppProps = {
-  name: string;
-};
-
-const App: React.FC<AppProps> = (props) => {
-  const { name } = props;
-
-  return (
-    <div>
-      <p>{`Hello, ${name}`}</p>
-    </div>
-  );
-};
+const App: React.FC = () => (
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="signup" element={<Signup />} />
+    <Route path="login" element={<Login />} />
+  </Routes>
+);
 
 export { App };
