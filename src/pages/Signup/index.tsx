@@ -1,13 +1,6 @@
 import React from 'react';
-import {
-  Container,
-  Box,
-  Grid,
-  Typography,
-  TextField,
-  Button,
-} from '@material-ui/core';
 import { Link } from 'react-router-dom';
+import { Container, Box, Grid, Typography, TextField, Button } from '../../ui';
 
 export const Signup: React.FC = () => {
   const handleSubmit = () => {
