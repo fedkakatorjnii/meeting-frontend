@@ -6,6 +6,10 @@
         "modules": false
       }
     ],
+    ["@babel/plugin-proposal-class-properties"],
     "@babel/preset-react"
-  ]
+  ],
+  "assumptions": {
+    "setPublicClassFields": false
+  }
 }

@@ -7,10 +7,11 @@
     "noImplicitAny": true,
     "module": "es6",
     "moduleResolution": "node",
-    "target": "es5",
+    "target": "es6",
     "allowJs": true,
     "jsx": "react",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "useDefineForClassFields": true
   },
   "baseUrl": "src/",
   "include": ["./src/**/*"]
