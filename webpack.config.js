@@ -1,46 +1,48 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 
 const config = {
-  mode: "development",
-  entry: "./src/index.tsx",
-  devtool: "inline-source-map",
+  mode: 'development',
+  entry: './src/index.tsx',
+  devtool: 'inline-source-map',
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
-    filename: "[name].[contenthash].js",
-    uniqueName: "my-application",
+    filename: '[name].[contenthash].js',
+    uniqueName: 'my-application',
   },
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
-        use: "babel-loader",
+        use: 'babel-loader',
         exclude: /node_modules/,
       },
       {
         test: /\.ts(x)?$/,
-        loader: "ts-loader",
+        loader: 'ts-loader',
         exclude: /node_modules/,
       },
       {
         test: /\.scss$/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
         test: /\.png$/,
         use: [
           {
-            loader: "url-loader",
+            loader: 'url-loader',
             options: {
-              mimetype: "image/png",
+              mimetype: 'image/png',
             },
           },
         ],
       },
       {
         test: /\.svg$/,
-        use: "file-loader",
+        use: 'file-loader',
       },
     ],
   },
@@ -48,21 +50,28 @@ const config = {
     historyApiFallback: true,
   },
   plugins: [
+    new Dotenv({
+      path: './.env',
+      safe: true,
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new HtmlWebpackPlugin({
       template: './template.html',
     }),
   ],
   resolve: {
-    extensions: [".tsx", ".ts", ".js"],
+    extensions: ['.tsx', '.ts', '.js'],
   },
   optimization: {
-    runtimeChunk: "single",
+    runtimeChunk: 'single',
     splitChunks: {
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          chunks: "all",
+          name: 'vendors',
+          chunks: 'all',
         },
       },
     },
