@@ -2,13 +2,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
+const projectRoot = path.resolve(__dirname);
 
 const config = {
   mode: 'development',
   entry: './src/index.tsx',
   devtool: 'inline-source-map',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(projectRoot, 'dist'),
     publicPath: '/',
     filename: '[name].[contenthash].js',
     uniqueName: 'my-application',
@@ -18,7 +19,7 @@ const config = {
       {
         test: /\.(js|jsx)$/,
         use: 'babel-loader',
-        exclude: /node_modules/,
+        exclude: /node_modules/i,
       },
       {
         test: /\.ts(x)?$/,
@@ -63,6 +64,11 @@ const config = {
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    modules: [path.resolve(projectRoot, 'node_modules'), 'node_modules'],
+    alias: {
+      process: 'process/browser',
+      '@ui': path.resolve(projectRoot, 'src/ui/'),
+    },
   },
   optimization: {
     runtimeChunk: 'single',

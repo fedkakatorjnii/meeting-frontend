@@ -34,6 +34,7 @@
     "react-hooks/exhaustive-deps": "warn",
     "object-curly-newline": "off",
     "object-curly-spacing": "off",
-    "implicit-arrow-linebreak": "off"
+    "implicit-arrow-linebreak": "off",
+    "lines-between-class-members": "off",
   }
 }
