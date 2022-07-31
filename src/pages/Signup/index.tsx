@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { axiosInstance } from '../../resources';
-import { Container, Box, Grid, Typography, TextField, Button } from '../../ui';
-
-type HTMLInputs = HTMLInputElement | HTMLTextAreaElement;
-
-interface NewUser {
-  firstName: string;
-  secondName: string;
-  username: string;
-  email: string;
-  password: string;
-}
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
+import {
+  Container,
+  Box,
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  HTMLInput,
+} from '@ui';
+import { NewUser } from '../../API/resources/Auth';
+import { StoreContext } from '../../context/StoreContextProvider';
 
 const FORM_INIT: NewUser = {
   firstName: '',
@@ -21,21 +21,27 @@ const FORM_INIT: NewUser = {
   password: '',
 };
 
-export const Signup: React.FC = () => {
+export const Signup: React.FC = observer(() => {
+  const { authStore } = useContext(StoreContext);
+  const { isLoading, error } = authStore;
   const [form, setForm] = useState<NewUser>(FORM_INIT);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
-    e.preventDefault();
-    await axiosInstance.post('/users', {
-      ...form,
-    });
-  };
-
-  const handleForm = (e: React.ChangeEvent<HTMLInputs>, fieldName: string) =>
+  const handleForm = (
+    e: React.ChangeEvent<HTMLInput>,
+    fieldName: keyof NewUser,
+  ) =>
     setForm({
       ...form,
       [fieldName]: e.target.value,
     });
+
+  const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    await authStore.registration(form).then(() => {
+      navigate('/');
+    });
+  };
 
   return (
     <Container maxWidth="xs" component="main">
@@ -103,6 +109,7 @@ export const Signup: React.FC = () => {
             </Grid>
           </Grid>
           <Button
+            disabled={isLoading}
             style={{ marginTop: 16, marginBottom: 8 }}
             type="submit"
             fullWidth
@@ -110,7 +117,7 @@ export const Signup: React.FC = () => {
             color="primary"
             size="large"
           >
-            Sign in
+            Зарегистрироваться
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
@@ -121,4 +128,4 @@ export const Signup: React.FC = () => {
       </Box>
     </Container>
   );
-};
+});
