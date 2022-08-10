@@ -67,6 +67,7 @@ const config = {
     modules: [path.resolve(projectRoot, 'node_modules'), 'node_modules'],
     alias: {
       process: 'process/browser',
+      '@API': path.resolve(projectRoot, 'src/API'),
       '@ui': path.resolve(projectRoot, 'src/ui/'),
     },
   },
