@@ -1,24 +1,15 @@
-import axios from 'axios';
-import { Auth } from './resources';
+import { Auth, User } from './resources';
 
-const URL = process.env.BACKEND_URL;
+export class Services {
+  readonly auth: Auth;
+  readonly user: User;
 
-export const getAxiosInstance = () => {
-  const axiosInstance = axios.create({
-    baseURL: URL,
-    timeout: 24000,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
+  constructor() {
+    const auth = new Auth();
 
-  // interceptors
+    this.auth = auth;
+    this.user = new User(this.auth);
+  }
+}
 
-  return axiosInstance;
-};
-
-export const services = {
-  auth: new Auth(getAxiosInstance()),
-};
-
-export type Services = typeof services;
+export const services = new Services();

@@ -15,7 +15,9 @@
     "baseUrl": "src",
     "paths": {
       "@ui": ["ui/index"],
-      "@ui/*": ["ui/*"]
+      "@ui/*": ["ui/*"],
+      "@API": ["API/index"],
+      "@API/*": ["API/*"]
     }
   },
   "baseUrl": "src/",

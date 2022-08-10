@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { LoginForm } from '../../API/resources/Auth';
+import { LoginForm } from '@API/models';
 import { StoreContext } from '../../context/StoreContextProvider';
 import {
   Box,
@@ -67,6 +67,7 @@ export const Login: React.FC = observer(() => {
             <Grid item xs={12}>
               <TextField
                 onChange={(e) => handleForm(e, 'password')}
+                type="password"
                 name="password"
                 label="Пароль"
                 variant="outlined"

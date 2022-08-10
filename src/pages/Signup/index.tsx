@@ -10,7 +10,7 @@ import {
   Button,
   HTMLInput,
 } from '@ui';
-import { NewUser } from '../../API/resources/Auth';
+import { NewUser } from '@API/models';
 import { StoreContext } from '../../context/StoreContextProvider';
 
 const FORM_INIT: NewUser = {
@@ -82,6 +82,7 @@ export const Signup: React.FC = observer(() => {
             <Grid item xs={12}>
               <TextField
                 onChange={(e) => handleForm(e, 'password')}
+                type="password"
                 name="password"
                 label="Пароль"
                 variant="outlined"
