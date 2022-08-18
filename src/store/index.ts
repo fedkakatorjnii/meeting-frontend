@@ -1,10 +1,12 @@
-import { services } from '../API';
-import { AuthStore } from './Auth';
-
+import { services as apiServices } from '@API';
+import { AuthStore } from './auth';
+import { UserStore } from './user';
 export class RootStore {
   authStore: AuthStore;
+  userStore: UserStore;
 
-  constructor() {
+  constructor(services = apiServices) {
     this.authStore = new AuthStore(services);
+    this.userStore = new UserStore(services);
   }
 }

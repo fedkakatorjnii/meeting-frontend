@@ -1,41 +1,45 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { LoginForm } from '@API/models';
-import { StoreContext } from '../../context/StoreContextProvider';
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  TextField,
-  Typography,
-  HTMLInput,
-} from '@ui';
+
+import { Box, Button, Container, Grid, TextField, Typography } from '@ui';
+import { LoginRequest, PartialLoginRequest } from '@API';
+import { useRootStore } from '@common';
+
+const isLoginRequest = (
+  values: PartialLoginRequest,
+): values is LoginRequest => {
+  const { password, username } = values;
+  if (!password || !username) return false;
+
+  return true;
+};
 
 export const Login: React.FC = observer(() => {
-  const { authStore } = useContext(StoreContext);
+  const { authStore } = useRootStore();
   const { isLoading } = authStore;
   const navigate = useNavigate();
-  const [form, setForm] = useState<LoginForm>({
-    username: '',
-    password: '',
-  });
+  const [form, setForm] = useState<PartialLoginRequest>({});
 
-  const handleForm = (
-    e: React.ChangeEvent<HTMLInput>,
-    field: keyof LoginForm,
+  const handleForm = <
+    T extends PartialLoginRequest[K],
+    K extends keyof PartialLoginRequest,
+  >(
+    value: T,
+    fieldName: K,
   ) =>
-    setForm({
+    setForm((form) => ({
       ...form,
-      [field]: e.target.value,
-    });
+      [fieldName]: value,
+    }));
 
   const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
-    await authStore.login(form).then(() => {
-      navigate('/');
-    });
+
+    if (!isLoginRequest(form)) return;
+
+    await authStore.login(form);
+    navigate('/');
   };
 
   return (
@@ -55,7 +59,7 @@ export const Login: React.FC = observer(() => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'username')}
+                onChange={(e) => handleForm(e.target.value, 'username')}
                 name="username"
                 label="Логин"
                 variant="outlined"
@@ -66,7 +70,7 @@ export const Login: React.FC = observer(() => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'password')}
+                onChange={(e) => handleForm(e.target.value, 'password')}
                 type="password"
                 name="password"
                 label="Пароль"

@@ -1,46 +1,43 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import {
-  Container,
-  Box,
-  Grid,
-  Typography,
-  TextField,
-  Button,
-  HTMLInput,
-} from '@ui';
-import { NewUser } from '@API/models';
-import { StoreContext } from '../../context/StoreContextProvider';
 
-const FORM_INIT: NewUser = {
-  firstName: '',
-  secondName: '',
-  username: '',
-  email: '',
-  password: '',
+import { Container, Box, Grid, Typography, TextField, Button } from '@ui';
+import { NewUserRequest, PartialNewUserRequest } from '@API';
+import { useRootStore } from '@common';
+
+const isNewUserRequest = (
+  values: PartialNewUserRequest,
+): values is NewUserRequest => {
+  const { email, password, username } = values;
+  if (!email || !password || !username) return false;
+
+  return true;
 };
 
 export const Signup: React.FC = observer(() => {
-  const { authStore } = useContext(StoreContext);
-  const { isLoading, error } = authStore;
-  const [form, setForm] = useState<NewUser>(FORM_INIT);
+  const { authStore, userStore } = useRootStore();
+  const [form, setForm] = useState<PartialNewUserRequest>({});
   const navigate = useNavigate();
 
-  const handleForm = (
-    e: React.ChangeEvent<HTMLInput>,
-    fieldName: keyof NewUser,
+  const handleForm = <
+    T extends PartialNewUserRequest[K],
+    K extends keyof PartialNewUserRequest,
+  >(
+    value: T,
+    fieldName: K,
   ) =>
-    setForm({
+    setForm((form) => ({
       ...form,
-      [fieldName]: e.target.value,
-    });
+      [fieldName]: value,
+    }));
 
   const handleSubmit = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
-    await authStore.registration(form).then(() => {
-      navigate('/');
-    });
+    if (!isNewUserRequest(form)) return;
+
+    await userStore.create(form);
+    navigate('/');
   };
 
   return (
@@ -60,7 +57,7 @@ export const Signup: React.FC = observer(() => {
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'username')}
+                onChange={(e) => handleForm(e.target.value, 'username')}
                 name="username"
                 label="Логин"
                 variant="outlined"
@@ -71,7 +68,7 @@ export const Signup: React.FC = observer(() => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'email')}
+                onChange={(e) => handleForm(e.target.value, 'email')}
                 name="email"
                 label="Email"
                 variant="outlined"
@@ -81,7 +78,7 @@ export const Signup: React.FC = observer(() => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'password')}
+                onChange={(e) => handleForm(e.target.value, 'password')}
                 type="password"
                 name="password"
                 label="Пароль"
@@ -92,7 +89,7 @@ export const Signup: React.FC = observer(() => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'firstName')}
+                onChange={(e) => handleForm(e.target.value, 'firstName')}
                 name="firstName"
                 label="Имя"
                 variant="outlined"
@@ -101,8 +98,8 @@ export const Signup: React.FC = observer(() => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => handleForm(e, 'secondName')}
-                name="secondName"
+                onChange={(e) => handleForm(e.target.value, 'lastName')}
+                name="lastName"
                 label="Фамилия"
                 variant="outlined"
                 fullWidth
@@ -110,7 +107,6 @@ export const Signup: React.FC = observer(() => {
             </Grid>
           </Grid>
           <Button
-            disabled={isLoading}
             style={{ marginTop: 16, marginBottom: 8 }}
             type="submit"
             fullWidth

@@ -69,6 +69,7 @@ const config = {
       process: 'process/browser',
       '@API': path.resolve(projectRoot, 'src/API'),
       '@ui': path.resolve(projectRoot, 'src/ui/'),
+      '@common': path.resolve(projectRoot, 'src/common'),
     },
   },
   optimization: {
