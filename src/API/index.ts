@@ -1,15 +1,10 @@
-import { Auth, User } from './resources';
+import { getAuthInstance } from './auth';
+import { User } from './user';
+export * from './types';
 
-export class Services {
-  readonly auth: Auth;
-  readonly user: User;
+export const services = {
+  auth: getAuthInstance(),
+  user: new User(),
+};
 
-  constructor() {
-    const auth = new Auth();
-
-    this.auth = auth;
-    this.user = new User(this.auth);
-  }
-}
-
-export const services = new Services();
+export type Services = typeof services;

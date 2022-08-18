@@ -7,7 +7,7 @@
     "noImplicitAny": true,
     "module": "es6",
     "moduleResolution": "node",
-    "target": "es5",
+    "target": "es6",
     "allowJs": true,
     "jsx": "react",
     "esModuleInterop": true,
@@ -17,7 +17,9 @@
       "@ui": ["ui/index"],
       "@ui/*": ["ui/*"],
       "@API": ["API/index"],
-      "@API/*": ["API/*"]
+      "@API/*": ["API/*"],
+      "@common": ["common/index"],
+      "@common/*": ["common/*"]
     }
   },
   "baseUrl": "src/",
