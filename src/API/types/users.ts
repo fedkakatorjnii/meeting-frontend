@@ -3,9 +3,13 @@ import { RoomResponse } from './rooms';
 
 export type UserCollectionResponse = Collection<UserResponse>;
 
+export type UserId = number;
+export type Username = string;
+export type UserIdRequest = UserId | Username;
+
 export interface UserResponse {
-  id: number;
-  username: string;
+  id: UserId;
+  username: Username;
   firstName: string;
   lastName: string;
   email: string;

@@ -1,38 +1,38 @@
 import { APIClient, getAPIClientInstance } from './api-client';
 import {
+  MessageCollectionResponse,
   NewUserRequest,
-  UserCollectionResponse,
-  UserIdRequest,
   UserResponse,
 } from './types';
 
-export class User {
+export class Messages {
   #apiClient: APIClient;
-  #uri = 'users';
+  #uri = 'messages';
 
   constructor(apiClient: APIClient = getAPIClientInstance()) {
     this.#apiClient = apiClient;
   }
 
-  async list() {
-    const res = await this.#apiClient.get<UserCollectionResponse>(
+  async list(roomId: number, ownerId: number, _page = 1, _page_size = 10) {
+    const res = await this.#apiClient.get<MessageCollectionResponse>(
       `${this.#uri}`,
+      {
+        params: {
+          roomId,
+          ownerId,
+          _page,
+          _page_size,
+        },
+      },
     );
 
     return res.data;
   }
 
-  async find(userId: UserIdRequest) {
+  async find(username: string) {
+    console.log('axios find', username);
     const res = await this.#apiClient.get<UserResponse>(
-      `${this.#uri}/${userId}`,
-    );
-
-    return res.data;
-  }
-
-  async delete(userId: UserIdRequest) {
-    const res = await this.#apiClient.delete<UserResponse>(
-      `${this.#uri}/${userId}`,
+      `${this.#uri}/${username}`,
     );
 
     return res.data;

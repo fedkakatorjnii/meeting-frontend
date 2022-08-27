@@ -13,9 +13,8 @@ import {
   UserCollectionResponse,
   UserResponse,
   NewUserRequest,
+  UserIdRequest,
 } from '@API';
-
-const URL = process.env.BACKEND_URL;
 
 export class UserStore {
   #services: Services;
@@ -27,6 +26,10 @@ export class UserStore {
   };
 
   private _newUser: MetaData<UserResponse> = {
+    loading: false,
+  };
+
+  private _deleteUser: MetaData<boolean> = {
     loading: false,
   };
 
@@ -70,7 +73,7 @@ export class UserStore {
     }
   }
 
-  async find(username: string) {
+  async find(userId: UserIdRequest) {
     try {
       runInAction(() => {
         this._user = {
@@ -78,7 +81,7 @@ export class UserStore {
         };
       });
 
-      const res = await this.#services.user.find(username);
+      const res = await this.#services.user.find(userId);
 
       runInAction(() => {
         this._user.value = res;
@@ -129,6 +132,35 @@ export class UserStore {
     }
   }
 
+  async delete(userId: UserIdRequest) {
+    try {
+      runInAction(() => {
+        this._deleteUser = {
+          loading: true,
+        };
+      });
+      await this.#services.user.delete(userId);
+
+      runInAction(() => {
+        this._deleteUser.value = true;
+      });
+    } catch (e) {
+      let error = new Error('Ошибка удаления пользователя.');
+
+      if (e instanceof Error) {
+        error = e;
+      }
+
+      runInAction(() => {
+        this._deleteUser.error = error;
+      });
+    } finally {
+      runInAction(() => {
+        this._deleteUser.loading = false;
+      });
+    }
+  }
+
   get users() {
     return this._users.value;
   }
@@ -139,5 +171,9 @@ export class UserStore {
 
   get newUser() {
     return this._newUser.value;
+  }
+
+  get deleteUser() {
+    return this._deleteUser;
   }
 }
