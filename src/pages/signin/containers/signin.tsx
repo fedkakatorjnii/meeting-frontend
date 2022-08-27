@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 
 import { Box, Button, Container, Grid, TextField, Typography } from '@ui';
 import { LoginRequest, PartialLoginRequest } from '@API';
-import { useRootStore } from '@common';
+import { useRefresh, useRootStore } from '@common';
 
 const isLoginRequest = (
   values: PartialLoginRequest,
@@ -15,10 +15,13 @@ const isLoginRequest = (
   return true;
 };
 
-export const Login: React.FC = observer(() => {
+export const SignIn = observer(() => {
   const { authStore } = useRootStore();
   const { isLoading } = authStore;
   const navigate = useNavigate();
+
+  useRefresh();
+
   const [form, setForm] = useState<PartialLoginRequest>({});
 
   const handleForm = <
@@ -55,7 +58,7 @@ export const Login: React.FC = observer(() => {
         <Typography component="h1" variant="h5">
           Войти в аккаунт
         </Typography>
-        <Box component="form" onSubmit={(e) => handleSubmit(e)} sx={{ mt: 3 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -96,3 +99,5 @@ export const Login: React.FC = observer(() => {
     </Container>
   );
 });
+
+SignIn.displayName = 'SignIn';

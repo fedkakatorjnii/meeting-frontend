@@ -1,3 +1,4 @@
-export * from './Home';
-export * from './Login';
-export * from './Signup';
+export * from './start';
+export * from './signup';
+export * from './signin';
+export * from './home';

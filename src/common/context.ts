@@ -6,3 +6,6 @@ import { RootStore } from '../store';
 export const RootContext = createContext<RootStore | undefined>(undefined);
 
 export const store = new RootStore(services);
+
+// @ts-ignore
+window.store = store;

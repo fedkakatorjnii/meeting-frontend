@@ -37,9 +37,8 @@ export class Auth {
   async login(): Promise<UserInfoForToken>;
   async login(auth: LoginRequest): Promise<UserInfoForToken>;
   async login(auth?: LoginRequest) {
-    if (!auth) {
-      return this.#refresh();
-    }
+    if (!auth) return this.#refresh();
+
     const { username, password } = auth;
     try {
       const {
