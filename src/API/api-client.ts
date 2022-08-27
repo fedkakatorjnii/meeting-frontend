@@ -1,6 +1,6 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
 import { Auth, getAuthInstance } from './auth';
-import { getAxiosInstance } from './axiosInstance';
+import { getAxiosInstance } from './axios-instance';
 
 type CustomRequestConfig = Omit<AxiosRequestConfig, 'method'>;
 

@@ -1,23 +1,30 @@
 import { APIClient, getAPIClientInstance } from './api-client';
-import { NewUserRequest, UserCollectionResponse, UserResponse } from './types';
+import {
+  MessageCollectionResponse,
+  NewUserRequest,
+  UserCollectionResponse,
+  UserResponse,
+} from './types';
 
-interface Room {
-  id: number;
-  name: string;
-  description: string;
-}
-
-export class User {
+export class Messages {
   #apiClient: APIClient;
-  #uri = 'users';
+  #uri = 'messages';
 
   constructor(apiClient: APIClient = getAPIClientInstance()) {
     this.#apiClient = apiClient;
   }
 
-  async list() {
-    const res = await this.#apiClient.get<UserCollectionResponse>(
+  async list(roomId: number, ownerId: number, _page = 1, _page_size = 10) {
+    const res = await this.#apiClient.get<MessageCollectionResponse>(
       `${this.#uri}`,
+      {
+        params: {
+          roomId,
+          ownerId,
+          _page,
+          _page_size,
+        },
+      },
     );
 
     return res.data;

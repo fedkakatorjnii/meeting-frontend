@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import jwtDecode from 'jwt-decode';
 import { runInAction } from 'mobx';
 
-import { getAxiosInstance } from './axiosInstance';
+import { getAxiosInstance } from './axios-instance';
 import { DecodedToken, LoginRequest, UserInfoForToken } from './types';
 
 interface APITokens {
