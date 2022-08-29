@@ -123,7 +123,7 @@ export const SignUp = observer(() => {
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link to="/login">Уже есть аккаунт? Войдите</Link>
+              <Link to="/signin">Уже есть аккаунт? Войдите</Link>
             </Grid>
           </Grid>
         </Box>

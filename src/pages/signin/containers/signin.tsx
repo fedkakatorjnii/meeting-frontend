@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 import { Box, Button, Container, Grid, TextField, Typography } from '@ui';
@@ -95,6 +95,11 @@ export const SignIn = observer(() => {
             Войти
           </Button>
         </Box>
+        <Grid container justifyContent="flex-end">
+          <Grid item>
+            <Link to="/signup">У вас ещё нет аккаунта? Регистрация</Link>
+          </Grid>
+        </Grid>
       </Box>
     </Container>
   );

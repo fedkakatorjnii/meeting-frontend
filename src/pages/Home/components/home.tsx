@@ -2,8 +2,8 @@ import React, { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
-import { useRootStore } from '@common';
-import { Backdrop, Button, CircularProgress } from '@ui';
+import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
+import { Backdrop, Box, CircularProgress, CssBaseline } from '@ui';
 
 export const HomePage: FC = observer(() => {
   const { authStore } = useRootStore();
@@ -17,10 +17,6 @@ export const HomePage: FC = observer(() => {
     } catch (error) {
       navigate('/start');
     }
-  };
-  const handleLogOut = () => {
-    authStore.logout();
-    navigate('/start');
   };
 
   useEffect(() => {
@@ -36,17 +32,20 @@ export const HomePage: FC = observer(() => {
   }
 
   return (
-    <div>
-      <h1>Hello Dudes</h1>
-      <nav>
-        <Button variant="contained" color="primary" onClick={handleLogOut}>
-          Выход
-        </Button>
-      </nav>
-      <Backdrop open={authStore.isLoading}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    </div>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+
+      <MainBar position="static" />
+
+      <LeftDrawer>
+        asd
+        {/* TODO */}
+      </LeftDrawer>
+      <RightDrawer>
+        qwe
+        {/* TODO */}
+      </RightDrawer>
+    </Box>
   );
 });
 
