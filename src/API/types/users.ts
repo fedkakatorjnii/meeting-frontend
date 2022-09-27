@@ -10,9 +10,10 @@ export type UserIdRequest = UserId | Username;
 export interface UserResponse {
   id: UserId;
   username: Username;
-  firstName: string;
-  lastName: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  photo?: string;
   isActive: boolean;
   isSuperuser: boolean;
   createdAt: Date;

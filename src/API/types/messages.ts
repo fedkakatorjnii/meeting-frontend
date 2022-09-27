@@ -14,6 +14,19 @@ export interface MessageResponse {
   room: RoomResponse;
 }
 
+export interface MessagesCollectionToRoom {
+  room: RoomResponse;
+  messages: Collection<MessageResponse>;
+}
+
+export interface MessagesCollectionToRoomResponse {
+  room: RoomResponse;
+  messages: MessageCollectionResponse;
+}
+
+export type MessagesCollectionToRoomsResponse =
+  MessagesCollectionToRoomResponse[];
+
 export interface NewMessageRequest {
   message: string;
   room: RoomIdRequest;

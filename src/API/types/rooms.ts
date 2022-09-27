@@ -10,6 +10,7 @@ export interface RoomResponse {
   id: RoomId;
   name: string;
   description: string;
+  photo?: string;
   owner: Omit<UserResponse, 'ownsRooms' | 'consistsRooms'>;
 }
 

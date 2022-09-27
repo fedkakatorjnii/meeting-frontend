@@ -1,6 +1,7 @@
 import { APIClient, getAPIClientInstance } from './api-client';
 import {
   MessageCollectionResponse,
+  MessagesCollectionToRoomsResponse,
   NewUserRequest,
   UserResponse,
 } from './types';
@@ -20,6 +21,22 @@ export class Messages {
         params: {
           roomId,
           ownerId,
+          _page,
+          _page_size,
+        },
+      },
+    );
+
+    return res.data;
+  }
+
+  async listToRooms(_page = 1, _page_size = 10) {
+    const res = await this.#apiClient.get<MessagesCollectionToRoomsResponse>(
+      `${this.#uri}/rooms`,
+      {
+        params: {
+          // roomId,
+          // ownerId,
           _page,
           _page_size,
         },
