@@ -1,18 +1,18 @@
 import { services as apiServices } from '@API';
 import { AuthStore } from './auth';
-import { ChatStore } from './chat';
+import { MessagesStore } from './messages';
 import { MainStore } from './main-store';
 import { UserStore } from './user';
 export class RootStore {
   mainStore: MainStore;
   authStore: AuthStore;
   userStore: UserStore;
-  chatStore: ChatStore;
+  messagesStore: MessagesStore;
 
   constructor(services = apiServices) {
     this.mainStore = new MainStore();
     this.authStore = new AuthStore(services);
     this.userStore = new UserStore(services);
-    this.chatStore = new ChatStore(services);
+    this.messagesStore = new MessagesStore(services);
   }
 }
