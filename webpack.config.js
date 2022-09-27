@@ -70,6 +70,7 @@ const config = {
       '@API': path.resolve(projectRoot, 'src/API'),
       '@ui': path.resolve(projectRoot, 'src/ui/'),
       '@common': path.resolve(projectRoot, 'src/common'),
+      '@features': path.resolve(projectRoot, 'src/features'),
     },
   },
   optimization: {

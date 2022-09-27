@@ -19,7 +19,9 @@
       "@API": ["API/index"],
       "@API/*": ["API/*"],
       "@common": ["common/index"],
-      "@common/*": ["common/*"]
+      "@common/*": ["common/*"],
+      "@features": ["features/index"],
+      "@features/*": ["features/*"]
     }
   },
   "baseUrl": "src/",

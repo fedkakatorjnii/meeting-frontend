@@ -4,9 +4,10 @@ import { observer } from 'mobx-react-lite';
 
 import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
 import { Backdrop, Box, CircularProgress, CssBaseline } from '@ui';
+import { MessagesContainer } from '@features/messages';
 
 export const HomePage: FC = observer(() => {
-  const { authStore } = useRootStore();
+  const { authStore, messagesStore } = useRootStore();
   const navigate = useNavigate();
 
   const handleRefresh = async () => {
@@ -36,14 +37,12 @@ export const HomePage: FC = observer(() => {
       <CssBaseline />
 
       <MainBar position="static" />
-
       <LeftDrawer>
-        asd
-        {/* TODO */}
+        <div style={{ height: 64 }}></div>
+        <MessagesContainer />
       </LeftDrawer>
       <RightDrawer>
-        qwe
-        {/* TODO */}
+        <div style={{ height: 64 }}></div>
       </RightDrawer>
     </Box>
   );
