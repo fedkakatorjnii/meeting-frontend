@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 
 import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
 import { Backdrop, Box, CircularProgress, CssBaseline } from '@ui';
+import { ProfileContainer } from '@features/profile';
 import { MessagesContainer } from './messages-container';
 
 export const HomePage: FC = observer(() => {
@@ -43,6 +44,7 @@ export const HomePage: FC = observer(() => {
       </LeftDrawer>
       <RightDrawer>
         <div style={{ height: 64 }}></div>
+        <ProfileContainer />
       </RightDrawer>
     </Box>
   );
