@@ -3,9 +3,9 @@ import { observer } from 'mobx-react-lite';
 import { List } from '@mui/material';
 
 import { useRootStore } from '@common';
-import { ListWrapper, MessagesListHeader, RoomListItem } from '../components';
+import { ListWrapper, RoomsListHeader, RoomListItem } from '../components';
 
-export const RoomCatalog: FC = observer(() => {
+export const RoomsCatalog: FC = observer(() => {
   const { messagesStore } = useRootStore();
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export const RoomCatalog: FC = observer(() => {
 
   return (
     <ListWrapper>
-      <MessagesListHeader options={[]} />
+      <RoomsListHeader options={[]} />
       <List>
         {messagesStore.rooms.map((item) => (
           <RoomListItem
@@ -31,4 +31,4 @@ export const RoomCatalog: FC = observer(() => {
   );
 });
 
-RoomCatalog.displayName = 'RoomCatalog';
+RoomsCatalog.displayName = 'RoomsCatalog';

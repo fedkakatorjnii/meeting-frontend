@@ -1,1 +1,1 @@
-export * from './messages-container';
+export * from './messages-catalog';

@@ -4,10 +4,10 @@ import { observer } from 'mobx-react-lite';
 
 import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
 import { Backdrop, Box, CircularProgress, CssBaseline } from '@ui';
-import { MessagesContainer } from '@features/messages';
+import { MessagesContainer } from './messages-container';
 
 export const HomePage: FC = observer(() => {
-  const { authStore, messagesStore } = useRootStore();
+  const { authStore } = useRootStore();
   const navigate = useNavigate();
 
   const handleRefresh = async () => {
@@ -24,6 +24,7 @@ export const HomePage: FC = observer(() => {
     handleRefresh();
   }, []);
 
+  if (authStore.error) return <>ERROR!</>;
   if (authStore.isLoading) {
     return (
       <Backdrop open={authStore.isLoading}>
@@ -35,7 +36,6 @@ export const HomePage: FC = observer(() => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-
       <MainBar position="static" />
       <LeftDrawer>
         <div style={{ height: 64 }}></div>

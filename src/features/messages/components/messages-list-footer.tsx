@@ -11,13 +11,11 @@ const FooterWrapper = styled(Paper)(({ theme }) => ({
   display: 'flex',
 }));
 
-interface MessagesMessageFooterProps {
+interface MessagesListFooterProps {
   onSend: (message?: string) => void;
 }
 
-export const MessagesMessageFooter: FC<MessagesMessageFooterProps> = ({
-  onSend,
-}) => {
+export const MessagesListFooter: FC<MessagesListFooterProps> = ({ onSend }) => {
   const [message, setMessage] = useState<string>();
   return (
     <FooterWrapper>

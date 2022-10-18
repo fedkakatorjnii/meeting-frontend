@@ -166,7 +166,7 @@ export class UserStore {
   }
 
   get user() {
-    return this._user.value;
+    return this._user;
   }
 
   get newUser() {
