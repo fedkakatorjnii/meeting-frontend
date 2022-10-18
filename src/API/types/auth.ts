@@ -1,3 +1,5 @@
+import { UserId } from './users';
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -6,7 +8,7 @@ export interface LoginRequest {
 export type PartialLoginRequest = Partial<LoginRequest>;
 
 export interface DecodedToken {
-  userId: number;
+  userId: UserId;
   username: string;
   iat: number;
   exp: number;

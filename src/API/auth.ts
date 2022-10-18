@@ -94,11 +94,15 @@ export class Auth {
 
       this.#refreshToken = refresh;
       this.#accessToken = access;
+      window.localStorage.setItem('refresh', refresh);
       this.#lastRefresh = Date.now();
 
-      const decoded: DecodedToken = jwtDecode(this.#accessToken);
+      const decoded: DecodedToken = jwtDecode(access);
 
-      return true;
+      return {
+        userId: decoded.userId,
+        username: decoded.username,
+      };
     } catch (error) {
       throw new Error('Ошибка авторизации.');
     }
