@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 
 import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
 import { Backdrop, Box, CircularProgress, CssBaseline } from '@ui';
+import { MapComponent } from './map';
 
 export const HomePage: FC = observer(() => {
   const { authStore } = useRootStore();
@@ -31,22 +32,7 @@ export const HomePage: FC = observer(() => {
     );
   }
 
-  return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-
-      <MainBar position="static" />
-
-      <LeftDrawer>
-        asd
-        {/* TODO */}
-      </LeftDrawer>
-      <RightDrawer>
-        qwe
-        {/* TODO */}
-      </RightDrawer>
-    </Box>
-  );
+  return <MapComponent />;
 });
 
 HomePage.displayName = 'HomePage';
