@@ -5,6 +5,7 @@ import { MainStore } from './main-store';
 import { UserStore } from './user';
 import { RoomStore } from './rooms';
 import { NotificationsStore } from './notifications-store';
+import { GeolocationStore } from './geolocation-store';
 
 export class RootStore {
   mainStore: MainStore;
@@ -13,6 +14,7 @@ export class RootStore {
   messagesStore: MessagesStore;
   roomStore: RoomStore;
   notificationsStore: NotificationsStore;
+  geolocationStore: GeolocationStore;
 
   constructor(services = apiServices) {
     this.notificationsStore = new NotificationsStore(services);
@@ -21,5 +23,6 @@ export class RootStore {
     this.userStore = new UserStore(services);
     this.messagesStore = new MessagesStore(services);
     this.roomStore = new RoomStore(services, this.notificationsStore);
+    this.geolocationStore = new GeolocationStore(services);
   }
 }

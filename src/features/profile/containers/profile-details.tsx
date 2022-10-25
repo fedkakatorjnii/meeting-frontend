@@ -6,6 +6,7 @@ import { UserId } from '@API';
 import { PrifileLoading, ProfileWrapper } from '../components';
 import { Avatar, Typography } from '@mui/material';
 import { Box } from '@mui/system';
+import { coordinatesFormatToString } from '@common/helpers';
 
 const nullValue = '-';
 
@@ -75,7 +76,7 @@ interface ProfileDetailProps {
 }
 
 export const ProfileDetail: FC<ProfileDetailProps> = observer(({ userId }) => {
-  const { userStore } = useRootStore();
+  const { userStore, geolocationStore } = useRootStore();
   const { loading, error, value } = userStore.user;
 
   useEffect(() => {
@@ -87,6 +88,17 @@ export const ProfileDetail: FC<ProfileDetailProps> = observer(({ userId }) => {
   if (!value) return null;
 
   const name = value.username;
+
+  const currentCoords = geolocationStore.currentPosition.value?.coords;
+  const position = currentCoords
+    ? `${coordinatesFormatToString({
+        type: 'lat',
+        value: currentCoords.latitude,
+      })} ${coordinatesFormatToString({
+        type: 'lon',
+        value: currentCoords.longitude,
+      })}`
+    : undefined;
 
   return (
     <ProfileWrapper>
@@ -103,6 +115,8 @@ export const ProfileDetail: FC<ProfileDetailProps> = observer(({ userId }) => {
         <ProfileListItem title="email" value={value.email} />
         <ProfileListItem title="активный" value={value.isActive} />
         <ProfileListItem title="супер" value={value.isSuperuser} />
+        <ProfileListItem title="супер" value={value.isSuperuser} />
+        <ProfileListItem title="текущаа позиция" value={position} />
       </Box>
     </ProfileWrapper>
   );
