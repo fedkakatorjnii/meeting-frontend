@@ -8,16 +8,20 @@ import {
 
 import {
   Services,
-  services as apiServices,
   MetaData,
   RoomResponse,
   RoomCollectionResponse,
   NewRoomRequest,
   RoomIdRequest,
+  RoomId,
 } from '@API';
+import { NotificationsStore } from './notifications-store';
 
 export class RoomStore {
   #services: Services;
+  #notificationsStore: NotificationsStore;
+  private _currentRoomId: RoomId | undefined = undefined;
+
   private _rooms: MetaData<RoomCollectionResponse> = {
     loading: false,
   };
@@ -33,15 +37,29 @@ export class RoomStore {
     loading: false,
   };
 
-  constructor(services = apiServices) {
+  constructor(services: Services, notificationsStore: NotificationsStore) {
     this.#services = services;
+    this.#notificationsStore = notificationsStore;
 
-    makeObservable<RoomStore, '_rooms' | '_room'>(this, {
+    makeObservable<
+      RoomStore,
+      '_rooms' | '_room' | '_currentRoomId' | '_newRoom' | '_deleteRoom'
+    >(this, {
       list: action,
+      find: action,
+      create: action,
+      delete: action,
+      clearCreate: action,
+      clearDelete: action,
       _rooms: observable,
       _room: observable,
+      _currentRoomId: observable,
+      _newRoom: observable,
+      _deleteRoom: observable,
       rooms: computed,
       room: computed,
+      newRoom: computed,
+      deleteRoom: computed,
     });
   }
 
@@ -104,16 +122,28 @@ export class RoomStore {
   }
 
   async create(data: NewRoomRequest) {
+    const roomName = data.description || data.name || '';
+
     try {
       runInAction(() => {
         this._newRoom = {
           loading: true,
         };
       });
-      const res = await this.#services.room.create(data);
+      const room = await this.#services.room.create(data);
 
       runInAction(() => {
-        this._newRoom.value = res;
+        this._newRoom.value = room;
+        const msg = `Room ${roomName} has been created!`;
+
+        if (this._rooms.value) {
+          this._rooms.value.items.push(room);
+        }
+
+        this.#notificationsStore.add({
+          msg,
+          severity: 'success',
+        });
       });
     } catch (e) {
       let error = new Error('Ошибка создания комнаты.');
@@ -125,6 +155,13 @@ export class RoomStore {
       runInAction(() => {
         this._newRoom.error = error;
       });
+
+      const msg = `${roomName} room create error!`;
+
+      this.#notificationsStore.add({
+        msg,
+        severity: 'success',
+      });
     } finally {
       runInAction(() => {
         this._newRoom.loading = false;
@@ -133,16 +170,34 @@ export class RoomStore {
   }
 
   async delete(roomId: RoomIdRequest) {
+    const currentRoom = this._rooms.value?.items.find(
+      (room) => room.id === roomId,
+    );
+    const roomName = currentRoom?.description || currentRoom?.name || '';
+
     try {
       runInAction(() => {
-        this._newRoom = {
+        this._deleteRoom = {
           loading: true,
         };
       });
+
       await this.#services.room.delete(roomId);
 
       runInAction(() => {
         this._deleteRoom.value = true;
+        const msg = `Room ${roomName} has been delete!`;
+
+        if (this._rooms.value?.items) {
+          this._rooms.value.items = this._rooms.value.items.filter(
+            (room) => room.id !== roomId,
+          );
+        }
+
+        this.#notificationsStore.add({
+          msg,
+          severity: 'success',
+        });
       });
     } catch (e) {
       let error = new Error('Ошибка удаления комнаты.');
@@ -153,12 +208,36 @@ export class RoomStore {
 
       runInAction(() => {
         this._deleteRoom.error = error;
+        const msg = `${roomName} room delete error!`;
+
+        this.#notificationsStore.add({
+          msg,
+          severity: 'error',
+        });
       });
     } finally {
       runInAction(() => {
         this._deleteRoom.loading = false;
       });
     }
+  }
+
+  clearCreate() {
+    this._newRoom = {
+      loading: false,
+    };
+  }
+
+  clearDelete() {
+    this._deleteRoom = {
+      loading: false,
+    };
+  }
+
+  selectRoom() {}
+
+  get currentRoomId() {
+    return this._currentRoomId;
   }
 
   get rooms() {

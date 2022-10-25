@@ -14,8 +14,12 @@ export interface RoomResponse {
   owner: Omit<UserResponse, 'ownsRooms' | 'consistsRooms'>;
 }
 
-export type NewRoomRequest = Pick<RoomResponse, 'id' | 'owner'> & {
+export type NewRoomRequest = Omit<RoomResponse, 'id' | 'owner'> & {
   owner: UserIdRequest;
 };
 
 export type PartialNewRoomRequest = Partial<NewRoomRequest>;
+
+export type NewAnonRoomRequest = Omit<NewRoomRequest, 'owner'>;
+
+export type PartialNewAnonRoomRequest = Partial<NewAnonRoomRequest>;
