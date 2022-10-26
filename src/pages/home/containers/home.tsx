@@ -6,6 +6,7 @@ import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
 import { Backdrop, Box, CircularProgress, CssBaseline } from '@ui';
 import { ProfileContainer } from '@features/profile';
 import { MessagesContainer } from './messages-container';
+import { MapComponent } from './map';
 
 export const HomePage: FC = observer(() => {
   const { authStore } = useRootStore();
@@ -38,6 +39,7 @@ export const HomePage: FC = observer(() => {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <MainBar position="static" />
+      <MapComponent />
       <LeftDrawer>
         <div style={{ height: 64 }}></div>
         <MessagesContainer />
