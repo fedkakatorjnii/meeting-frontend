@@ -2,7 +2,6 @@ import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { List } from '@mui/material';
 
-import { MessagesCollectionToRoomResponse } from '@API';
 import { useRootStore } from '@common';
 import {
   ListWrapper,
@@ -11,40 +10,35 @@ import {
   MessagesListFooter,
 } from '../components';
 
-interface MessagesCatalogProps {
-  item: MessagesCollectionToRoomResponse;
-}
+export const MessagesCatalog: FC = observer(() => {
+  const { roomsStore } = useRootStore();
 
-export const MessagesCatalog: FC<MessagesCatalogProps> = observer(
-  ({ item }) => {
-    const { messages } = item;
-    const { messagesStore } = useRootStore();
+  const messages = roomsStore.currentRoom?.messages;
 
-    return (
-      <>
-        <MessagesListHeader
-          options={[]}
-          onBack={() => messagesStore.changeCurrentRoom()}
-        />
-        <ListWrapper>
-          <List>
-            {messages.items.map((item) => (
-              <MessagesListItem key={item.id} item={item} />
-            ))}
-          </List>
-        </ListWrapper>
-        <MessagesListFooter
-          onSend={(message) => {
-            const newMessage = message?.trim();
+  return (
+    <>
+      <MessagesListHeader
+        options={[]}
+        onBack={() => roomsStore.changeCurrentRoom()}
+      />
+      <ListWrapper>
+        <List>
+          {messages?.value?.items.map((item) => (
+            <MessagesListItem key={item.id} item={item} />
+          ))}
+        </List>
+      </ListWrapper>
+      <MessagesListFooter
+        onSend={(message) => {
+          const newMessage = message?.trim();
 
-            if (!newMessage) return;
+          if (!newMessage) return;
 
-            messagesStore.send(newMessage, item.room.id);
-          }}
-        />
-      </>
-    );
-  },
-);
+          // messagesStore.send(newMessage, item.room.id);
+        }}
+      />
+    </>
+  );
+});
 
 MessagesCatalog.displayName = 'MessagesCatalog';

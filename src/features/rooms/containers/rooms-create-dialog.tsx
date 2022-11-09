@@ -1,11 +1,7 @@
 import React, { FC, useState } from 'react';
-import {
-  NewAnonRoomRequest,
-  NewRoomRequest,
-  PartialNewAnonRoomRequest,
-  PartialNewRoomRequest,
-  UserIdRequest,
-} from '@API';
+import { observer } from 'mobx-react-lite';
+
+import { PartialNewAnonRoomRequest } from '@API';
 import { useRootStore } from '@common';
 import {
   Alert,
@@ -17,40 +13,7 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
-import { observer } from 'mobx-react-lite';
-
-const isUserId = (value?: any): value is UserIdRequest => {
-  if (typeof value === 'number' && !Number.isNaN(value)) return true;
-  if (typeof value === 'string' && value !== '') return true;
-
-  return false;
-};
-const isAnonNewRoomRequest = (
-  values: PartialNewAnonRoomRequest,
-): values is NewAnonRoomRequest => {
-  const { name, description, photo } = values;
-
-  if (name === undefined || typeof name !== 'string' || name === '') {
-    return false;
-  }
-  if (description !== undefined && (typeof name !== 'string' || name === '')) {
-    return false;
-  }
-  if (photo !== undefined && (typeof photo !== 'string' || photo === '')) {
-    return false;
-  }
-
-  return true;
-};
-
-const isNewRoomRequest = (
-  values: PartialNewRoomRequest,
-): values is NewRoomRequest => {
-  if (!isUserId(values.owner)) return false;
-  if (!isAnonNewRoomRequest(values)) return false;
-
-  return true;
-};
+import { isAnonNewRoomRequest } from '../helpers';
 
 interface RoomsCreateDialogProps {
   onClose: () => void;
@@ -59,17 +22,19 @@ interface RoomsCreateDialogProps {
 
 export const RoomsCreateDialog: FC<RoomsCreateDialogProps> = observer(
   ({ visible = false, onClose }) => {
-    const { authStore, roomStore } = useRootStore();
+    const { authStore, roomsStore } = useRootStore();
     const [room, setRoom] = useState<PartialNewAnonRoomRequest>({});
     const isComplete = isAnonNewRoomRequest(room);
-    const { loading, error, value } = roomStore.newRoom;
+
+    const { loading, error, value } = roomsStore.newRoom;
+    const isAuth = !!authStore.authInfo;
 
     if (loading) {
-      // TODO
+      // TODO подумать над ожиданием
     }
 
     if (value && !error) {
-      roomStore.clearCreate();
+      roomsStore.clearCreate();
       onClose();
     }
 
@@ -113,9 +78,9 @@ export const RoomsCreateDialog: FC<RoomsCreateDialogProps> = observer(
           <Button
             onClick={() => {
               if (!isComplete) return;
-              if (!authStore.authInfo) return;
+              if (!isAuth) return;
 
-              roomStore.create({
+              roomsStore.create({
                 ...room,
                 owner: authStore.authInfo.userId,
               });
@@ -128,7 +93,7 @@ export const RoomsCreateDialog: FC<RoomsCreateDialogProps> = observer(
           </Button>
           <Button
             onClick={() => {
-              roomStore.clearCreate();
+              roomsStore.clearCreate();
               onClose();
             }}
             variant="contained"
@@ -141,3 +106,5 @@ export const RoomsCreateDialog: FC<RoomsCreateDialogProps> = observer(
     );
   },
 );
+
+RoomsCreateDialog.displayName = 'RoomsCreateDialog';

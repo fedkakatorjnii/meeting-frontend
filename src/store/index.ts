@@ -1,18 +1,17 @@
 import { services as apiServices } from '@API';
 import { AuthStore } from './auth';
-import { MessagesStore } from './messages';
 import { MainStore } from './main-store';
 import { UserStore } from './user';
-import { RoomStore } from './rooms';
+import { RoomsStore } from './rooms';
 import { NotificationsStore } from './notifications-store';
 import { GeolocationStore } from './geolocation-store';
 import { MapStore } from './map';
+
 export class RootStore {
   mainStore: MainStore;
   authStore: AuthStore;
   userStore: UserStore;
-  messagesStore: MessagesStore;
-  roomStore: RoomStore;
+  roomsStore: RoomsStore;
   notificationsStore: NotificationsStore;
   geolocationStore: GeolocationStore;
   mapStore: MapStore;
@@ -22,8 +21,7 @@ export class RootStore {
     this.mainStore = new MainStore();
     this.authStore = new AuthStore(services);
     this.userStore = new UserStore(services);
-    this.messagesStore = new MessagesStore(services);
-    this.roomStore = new RoomStore(services, this.notificationsStore);
+    this.roomsStore = new RoomsStore(services, this.notificationsStore);
     this.geolocationStore = new GeolocationStore(services);
     this.mapStore = new MapStore(this.geolocationStore, {});
   }

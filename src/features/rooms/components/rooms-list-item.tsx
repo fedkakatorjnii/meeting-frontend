@@ -10,9 +10,10 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { RoomResponse } from '@API';
+import { observer } from 'mobx-react-lite';
 
 interface RoomListItemProps {
-  item: RoomResponse;
+  item?: RoomResponse;
   selected?: boolean;
   onSelect?: (item: RoomResponse) => void;
   onDelete?: (item: RoomResponse) => void;
@@ -20,35 +21,34 @@ interface RoomListItemProps {
   actions?: ReactNode;
 }
 
-export const RoomListItem: FC<RoomListItemProps> = ({
-  item,
-  onSelect,
-  onDelete,
-  selected = false,
-}) => {
-  const { name, description, photo } = item;
-  const roomName = description || name;
+export const RoomListItem: FC<RoomListItemProps> = observer(
+  ({ item, onSelect, onDelete, selected = false }) => {
+    if (!item) return null;
 
-  return (
-    <ListItemButton onClick={() => onSelect?.(item)} selected={selected}>
-      <ListItemAvatar>
-        <Avatar alt={roomName} src={photo} />
-      </ListItemAvatar>
-      <ListItemText primary={roomName} />
-      <ListItemSecondaryAction>
-        {onDelete && (
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(item);
-            }}
-          >
-            <DeleteIcon />
-          </IconButton>
-        )}
-      </ListItemSecondaryAction>
-    </ListItemButton>
-  );
-};
+    const { name, description, photo } = item;
+    const roomName = description || name;
+
+    return (
+      <ListItemButton onClick={() => onSelect?.(item)} selected={selected}>
+        <ListItemAvatar>
+          <Avatar alt={roomName} src={photo} />
+        </ListItemAvatar>
+        <ListItemText primary={roomName} />
+        <ListItemSecondaryAction>
+          {onDelete && (
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(item);
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </ListItemSecondaryAction>
+      </ListItemButton>
+    );
+  },
+);
 
 RoomListItem.displayName = 'RoomListItem';

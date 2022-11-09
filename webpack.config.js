@@ -71,6 +71,7 @@ const config = {
       '@ui': path.resolve(projectRoot, 'src/ui/'),
       '@common': path.resolve(projectRoot, 'src/common'),
       '@features': path.resolve(projectRoot, 'src/features'),
+      '@store': path.resolve(projectRoot, 'src/store'),
     },
   },
   optimization: {

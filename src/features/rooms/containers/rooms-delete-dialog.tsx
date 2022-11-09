@@ -20,16 +20,21 @@ interface RoomsCreateDialogProps {
 
 export const RoomsDeleteDialog: FC<RoomsCreateDialogProps> = observer(
   ({ visible = false, roomId, onClose }) => {
-    const { authStore, roomStore } = useRootStore();
-    const { loading, error, value } = roomStore.deleteRoom;
-    const isComplete = roomId !== undefined;
+    const { authStore, roomsStore } = useRootStore();
+    const room = roomsStore.rooms?.find((room) => room.id === roomId);
+    const isAuth = !!authStore.authInfo;
+
+    // TODO подумать что делать если комната не найдена
+    if (!room) return null;
+
+    const { loading, error, value } = room.deleteValue;
 
     if (loading) {
-      // TODO
+      // TODO подумать над ожиданием
     }
 
     if (value && !error) {
-      roomStore.clearDelete();
+      room.clearDelete();
       onClose();
     }
 
@@ -42,20 +47,19 @@ export const RoomsDeleteDialog: FC<RoomsCreateDialogProps> = observer(
         <DialogActions>
           <Button
             onClick={() => {
-              if (!isComplete) return;
-              if (!authStore.authInfo) return;
+              if (!isAuth) return;
 
-              roomStore.delete(roomId);
+              room.delete();
             }}
             variant="contained"
             color="error"
-            disabled={!isComplete}
+            disabled={!isAuth}
           >
             ok
           </Button>
           <Button
             onClick={() => {
-              roomStore.clearDelete();
+              room.clearDelete();
               onClose();
             }}
             variant="contained"
@@ -68,3 +72,5 @@ export const RoomsDeleteDialog: FC<RoomsCreateDialogProps> = observer(
     );
   },
 );
+
+RoomsDeleteDialog.displayName = 'RoomsDeleteDialog';

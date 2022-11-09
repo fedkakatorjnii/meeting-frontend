@@ -6,11 +6,9 @@ import { MessagesCatalog } from '@features/messages';
 import { RoomsCatalog } from '@features/rooms';
 
 export const MessagesContainer: FC = observer(() => {
-  const { messagesStore } = useRootStore();
+  const { roomsStore } = useRootStore();
 
-  if (messagesStore.currentRoom) {
-    return <MessagesCatalog item={messagesStore.currentRoom} />;
-  }
+  if (roomsStore.currentRoom) return <MessagesCatalog />;
 
   return <RoomsCatalog />;
 });

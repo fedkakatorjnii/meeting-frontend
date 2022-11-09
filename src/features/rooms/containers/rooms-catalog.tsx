@@ -2,6 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { List } from '@mui/material';
 
+import { RoomId } from '@API';
 import { useRootStore } from '@common';
 import {
   ListWrapper,
@@ -11,31 +12,32 @@ import {
 } from '../components';
 import { RoomsCreateDialog } from './rooms-create-dialog';
 import { RoomsDeleteDialog } from './rooms-delete-dialog';
-import { RoomId } from '@API';
 
 export const RoomsCatalog: FC = observer(() => {
-  const { messagesStore, roomStore } = useRootStore();
+  const { roomsStore } = useRootStore();
   const [isVisibleCreateDialog, setIsVisibleCreateDialog] = useState(false);
   const [isVisibleDeleteDialog, setIsVisibleDeleteDialog] = useState(false);
   const [deleteRoomId, setDeleteRoomId] = useState<RoomId>();
 
   useEffect(() => {
-    roomStore.list();
+    roomsStore.listToRooms();
   }, []);
 
-  const rooms = roomStore.rooms.value?.items || [];
+  const rooms = roomsStore.rooms || [];
 
   return (
     <>
       <ListWrapper>
         <RoomsListHeader options={[]} />
         <List>
-          {rooms.map((item) => (
+          {rooms.map((room) => (
             <RoomListItem
-              key={item.id}
-              item={item}
-              onSelect={({ id }) => messagesStore.changeCurrentRoom(id)}
-              selected={roomStore.currentRoomId === item.id}
+              key={room.id}
+              item={room.value.value}
+              onSelect={({ id }) => {
+                roomsStore.changeCurrentRoom(id);
+              }}
+              selected={roomsStore.currentRoomId === room.id}
               onDelete={({ id }) => {
                 setDeleteRoomId(id);
                 setIsVisibleDeleteDialog(true);

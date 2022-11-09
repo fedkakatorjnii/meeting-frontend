@@ -10,29 +10,28 @@ import {
   Services,
   MetaData,
   RoomResponse,
-  RoomCollectionResponse,
   NewRoomRequest,
   RoomIdRequest,
   RoomId,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
+import { RoomStore, RoomStoreDefaultValue } from './room';
 
-export class RoomStore {
+export class RoomsStore {
   #services: Services;
   #notificationsStore: NotificationsStore;
-  private _currentRoomId: RoomId | undefined = undefined;
 
-  private _rooms: MetaData<RoomCollectionResponse> = {
+  private _currentRoomId: RoomId | undefined = undefined;
+  private _currentRoom: RoomStore | undefined = undefined;
+  private _rooms: MetaData<RoomStore[]> = {
     loading: false,
   };
   private _room: MetaData<RoomResponse> = {
     loading: false,
   };
-
   private _newRoom: MetaData<RoomResponse> = {
     loading: false,
   };
-
   private _deleteRoom: MetaData<boolean> = {
     loading: false,
   };
@@ -42,40 +41,61 @@ export class RoomStore {
     this.#notificationsStore = notificationsStore;
 
     makeObservable<
-      RoomStore,
-      '_rooms' | '_room' | '_currentRoomId' | '_newRoom' | '_deleteRoom'
+      RoomsStore,
+      | '_rooms'
+      | '_room'
+      | '_currentRoomId'
+      | '_currentRoom'
+      | '_newRoom'
+      | '_deleteRoom'
     >(this, {
-      list: action,
+      listToRooms: action,
       find: action,
       create: action,
-      delete: action,
+      changeCurrentRoom: action,
       clearCreate: action,
-      clearDelete: action,
       _rooms: observable,
       _room: observable,
       _currentRoomId: observable,
+      _currentRoom: observable,
       _newRoom: observable,
       _deleteRoom: observable,
       rooms: computed,
       room: computed,
       newRoom: computed,
       deleteRoom: computed,
+      currentRoomId: computed,
+      currentRoom: computed,
     });
   }
 
-  async list() {
+  async listToRooms(_page = 1, _page_size = 10) {
     try {
       this._rooms = {
         loading: true,
       };
 
-      const res = await this.#services.room.list();
+      const res = await this.#services.messages.listToRooms(_page, _page_size);
+
+      const rooms: RoomStore[] = res.map(({ room, messages }) => {
+        const defaultValue: RoomStoreDefaultValue = {
+          id: room.id,
+          room,
+          messages,
+        };
+
+        return new RoomStore(
+          this.#services,
+          this.#notificationsStore,
+          defaultValue,
+        );
+      });
 
       runInAction(() => {
-        this._rooms.value = res;
+        this._rooms.value = rooms;
       });
     } catch (e) {
-      let error = new Error('Ошибка получения списка комнат.');
+      let error = new Error('Ошибка получения списка сообщений.');
 
       if (e instanceof Error) {
         error = e;
@@ -136,8 +156,21 @@ export class RoomStore {
         this._newRoom.value = room;
         const msg = `Room ${roomName} has been created!`;
 
+        const defaultValue: RoomStoreDefaultValue = {
+          id: room.id,
+          room,
+        };
+
+        const roomStore = new RoomStore(
+          this.#services,
+          this.#notificationsStore,
+          defaultValue,
+        );
+
         if (this._rooms.value) {
-          this._rooms.value.items.push(room);
+          this._rooms.value.push(roomStore);
+        } else {
+          this._rooms.value = [roomStore];
         }
 
         this.#notificationsStore.add({
@@ -169,57 +202,9 @@ export class RoomStore {
     }
   }
 
-  async delete(roomId: RoomIdRequest) {
-    const currentRoom = this._rooms.value?.items.find(
-      (room) => room.id === roomId,
-    );
-    const roomName = currentRoom?.description || currentRoom?.name || '';
-
-    try {
-      runInAction(() => {
-        this._deleteRoom = {
-          loading: true,
-        };
-      });
-
-      await this.#services.room.delete(roomId);
-
-      runInAction(() => {
-        this._deleteRoom.value = true;
-        const msg = `Room ${roomName} has been delete!`;
-
-        if (this._rooms.value?.items) {
-          this._rooms.value.items = this._rooms.value.items.filter(
-            (room) => room.id !== roomId,
-          );
-        }
-
-        this.#notificationsStore.add({
-          msg,
-          severity: 'success',
-        });
-      });
-    } catch (e) {
-      let error = new Error('Ошибка удаления комнаты.');
-
-      if (e instanceof Error) {
-        error = e;
-      }
-
-      runInAction(() => {
-        this._deleteRoom.error = error;
-        const msg = `${roomName} room delete error!`;
-
-        this.#notificationsStore.add({
-          msg,
-          severity: 'error',
-        });
-      });
-    } finally {
-      runInAction(() => {
-        this._deleteRoom.loading = false;
-      });
-    }
+  async changeCurrentRoom(roomId?: RoomIdRequest) {
+    this._currentRoomId = roomId;
+    this._currentRoom = this._rooms.value?.find((room) => room.id === roomId);
   }
 
   clearCreate() {
@@ -228,20 +213,16 @@ export class RoomStore {
     };
   }
 
-  clearDelete() {
-    this._deleteRoom = {
-      loading: false,
-    };
-  }
-
-  selectRoom() {}
-
   get currentRoomId() {
     return this._currentRoomId;
   }
 
+  get currentRoom() {
+    return this._currentRoom;
+  }
+
   get rooms() {
-    return this._rooms;
+    return this._rooms.value;
   }
 
   get room() {
