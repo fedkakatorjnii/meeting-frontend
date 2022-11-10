@@ -17,7 +17,7 @@ interface MessagesStores {
   notificationsStore: NotificationsStore;
 }
 
-export class MessagesStore {
+export class MessagesSocketStore {
   readonly #services: Services;
   readonly #authStore: AuthStore;
   readonly #roomsStore: RoomsStore;
@@ -32,7 +32,7 @@ export class MessagesStore {
     this.#roomsStore = roomsStore;
     this.#notificationsStore = notificationsStore;
 
-    makeObservable<MessagesStore>(this, {});
+    makeObservable<MessagesSocketStore>(this, {});
 
     this.#messagesListener();
   }

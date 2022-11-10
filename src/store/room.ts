@@ -16,7 +16,7 @@ import {
   MessageResponse,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
-import { getUserName } from '@common/helpers';
+import { getFullUserName } from '@common/helpers';
 import { AuthStore } from './auth';
 
 export interface RoomStoreDefaultValue {
@@ -78,10 +78,6 @@ export class RoomStore {
     runInAction(() => {
       this._room.value = room;
       this._messages.value = messages;
-    });
-
-    autorun(() => {
-      console.log('CHANGE MESSAGES', this._messages);
     });
   }
 
@@ -187,7 +183,7 @@ export class RoomStore {
 
     if (message.owner.id === this.#authStore.authInfo?.userId) return;
 
-    const userName = getUserName(message.owner);
+    const userName = getFullUserName(message.owner);
     const msg = `You have received a new message from ${userName} in the ${this.name} room!`;
 
     this.#notificationsStore.add({

@@ -11,7 +11,7 @@ import {
 } from '../components';
 
 export const MessagesCatalog: FC = observer(() => {
-  const { roomsStore, messagesStore } = useRootStore();
+  const { roomsStore, messagesSocketStore } = useRootStore();
 
   const currentRoom = roomsStore.currentRoom;
 
@@ -37,7 +37,7 @@ export const MessagesCatalog: FC = observer(() => {
 
           if (!newMessage) return;
 
-          messagesStore.sendMessage(currentRoom.id, newMessage);
+          messagesSocketStore.sendMessage(currentRoom.id, newMessage);
         }}
       />
     </>
