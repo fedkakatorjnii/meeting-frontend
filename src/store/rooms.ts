@@ -6,6 +6,7 @@ import {
   runInAction,
 } from 'mobx';
 
+import { getUserName } from '@common/helpers';
 import {
   Services,
   MetaData,
@@ -16,13 +17,19 @@ import {
 } from '@API';
 import { NotificationsStore } from './notifications-store';
 import { RoomStore, RoomStoreDefaultValue } from './room';
+import { AuthStore } from './auth';
+
+interface RoomsStores {
+  authStore: AuthStore;
+  notificationsStore: NotificationsStore;
+}
 
 export class RoomsStore {
   #services: Services;
+  #authStore: AuthStore;
   #notificationsStore: NotificationsStore;
 
   private _currentRoomId: RoomId | undefined = undefined;
-  private _currentRoom: RoomStore | undefined = undefined;
   private _rooms: MetaData<RoomStore[]> = {
     loading: false,
   };
@@ -36,18 +43,17 @@ export class RoomsStore {
     loading: false,
   };
 
-  constructor(services: Services, notificationsStore: NotificationsStore) {
+  constructor(
+    services: Services,
+    { authStore, notificationsStore }: RoomsStores,
+  ) {
     this.#services = services;
+    this.#authStore = authStore;
     this.#notificationsStore = notificationsStore;
 
     makeObservable<
       RoomsStore,
-      | '_rooms'
-      | '_room'
-      | '_currentRoomId'
-      | '_currentRoom'
-      | '_newRoom'
-      | '_deleteRoom'
+      '_rooms' | '_room' | '_currentRoomId' | '_newRoom' | '_deleteRoom'
     >(this, {
       listToRooms: action,
       find: action,
@@ -57,7 +63,6 @@ export class RoomsStore {
       _rooms: observable,
       _room: observable,
       _currentRoomId: observable,
-      _currentRoom: observable,
       _newRoom: observable,
       _deleteRoom: observable,
       rooms: computed,
@@ -86,7 +91,10 @@ export class RoomsStore {
 
         return new RoomStore(
           this.#services,
-          this.#notificationsStore,
+          {
+            authStore: this.#authStore,
+            notificationsStore: this.#notificationsStore,
+          },
           defaultValue,
         );
       });
@@ -163,7 +171,10 @@ export class RoomsStore {
 
         const roomStore = new RoomStore(
           this.#services,
-          this.#notificationsStore,
+          {
+            authStore: this.#authStore,
+            notificationsStore: this.#notificationsStore,
+          },
           defaultValue,
         );
 
@@ -204,7 +215,6 @@ export class RoomsStore {
 
   async changeCurrentRoom(roomId?: RoomIdRequest) {
     this._currentRoomId = roomId;
-    this._currentRoom = this._rooms.value?.find((room) => room.id === roomId);
   }
 
   clearCreate() {
@@ -218,7 +228,7 @@ export class RoomsStore {
   }
 
   get currentRoom() {
-    return this._currentRoom;
+    return this._rooms.value?.find((room) => room.id === this._currentRoomId);
   }
 
   get rooms() {

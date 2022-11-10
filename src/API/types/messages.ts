@@ -33,3 +33,14 @@ export interface NewMessageRequest {
 }
 
 export type PartialNewMessageRequest = Partial<NewMessageRequest>;
+
+export interface AnonMessageToRoom {
+  room: number;
+  message: string;
+}
+
+export interface MessageToRoom {
+  senderId: number;
+  room: number;
+  message: MessageResponse;
+}

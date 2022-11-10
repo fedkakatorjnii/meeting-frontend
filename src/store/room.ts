@@ -1,5 +1,6 @@
 import {
   action,
+  autorun,
   computed,
   makeObservable,
   observable,
@@ -12,8 +13,11 @@ import {
   RoomResponse,
   RoomId,
   MessageCollectionResponse,
+  MessageResponse,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
+import { getUserName } from '@common/helpers';
+import { AuthStore } from './auth';
 
 export interface RoomStoreDefaultValue {
   id: RoomId;
@@ -21,10 +25,16 @@ export interface RoomStoreDefaultValue {
   messages?: MessageCollectionResponse;
 }
 
+interface RoomStores {
+  authStore: AuthStore;
+  notificationsStore: NotificationsStore;
+}
+
 export class RoomStore {
   readonly id: RoomId;
 
   #services: Services;
+  #authStore: AuthStore;
   #notificationsStore: NotificationsStore;
 
   private _room: MetaData<RoomResponse> = {
@@ -41,23 +51,26 @@ export class RoomStore {
 
   constructor(
     services: Services,
-    notificationsStore: NotificationsStore,
+    { authStore, notificationsStore }: RoomStores,
     defaultValue: RoomStoreDefaultValue,
   ) {
     this.#services = services;
+    this.#authStore = authStore;
     this.#notificationsStore = notificationsStore;
 
     const { id, room, messages } = defaultValue;
-    console.log('defaultValue', defaultValue);
 
     this.id = id;
 
-    makeObservable<RoomStore, '_room' | '_delete'>(this, {
+    makeObservable<RoomStore, '_room' | '_delete' | '_messages'>(this, {
       _room: observable,
       _delete: observable,
+      _messages: observable,
       value: computed,
+      messages: computed,
       deleteValue: computed,
       load: action,
+      addMessage: action,
       delete: action,
       clearDelete: action,
     });
@@ -66,19 +79,13 @@ export class RoomStore {
       this._room.value = room;
       this._messages.value = messages;
     });
-  }
 
-  #getName() {
-    if (!this._room.value) return this.id;
-
-    const { description, name } = this._room.value;
-
-    return description || name;
+    autorun(() => {
+      console.log('CHANGE MESSAGES', this._messages);
+    });
   }
 
   async load() {
-    const roomName = this.#getName();
-
     try {
       runInAction(() => {
         this._room = {
@@ -98,7 +105,7 @@ export class RoomStore {
         error = e;
       }
 
-      const msg = `Error loading room ${roomName}`;
+      const msg = `Error loading room ${this.name}`;
 
       runInAction(() => {
         this._room.error = error;
@@ -116,8 +123,6 @@ export class RoomStore {
   }
 
   async delete() {
-    const roomName = this.#getName();
-
     try {
       runInAction(() => {
         this._delete = {
@@ -128,7 +133,7 @@ export class RoomStore {
       await this.#services.room.delete(this.id);
 
       runInAction(() => {
-        const msg = `Room ${roomName} has been delete!`;
+        const msg = `Room ${this.name} has been delete!`;
 
         this._delete.value = true;
 
@@ -139,7 +144,7 @@ export class RoomStore {
         });
       });
     } catch (e) {
-      const msg = `${roomName} room delete error!`;
+      const msg = `${this.name} room delete error!`;
       let error = new Error(msg);
 
       if (e instanceof Error) {
@@ -174,7 +179,32 @@ export class RoomStore {
     };
   }
 
+  addMessage = (message: MessageResponse) => {
+    if (!this._messages.value) return;
+
+    this._messages.value.items.push(message);
+    this._messages.value.total += 1;
+
+    if (message.owner.id === this.#authStore.authInfo?.userId) return;
+
+    const userName = getUserName(message.owner);
+    const msg = `You have received a new message from ${userName} in the ${this.name} room!`;
+
+    this.#notificationsStore.add({
+      msg,
+      severity: 'success',
+    });
+  };
+
   get messages() {
     return this._messages;
+  }
+
+  get name() {
+    if (!this._room.value) return this.id;
+
+    const { description, name } = this._room.value;
+
+    return description || name;
   }
 }

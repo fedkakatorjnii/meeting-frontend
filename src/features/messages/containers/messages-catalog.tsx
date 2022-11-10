@@ -11,9 +11,12 @@ import {
 } from '../components';
 
 export const MessagesCatalog: FC = observer(() => {
-  const { roomsStore } = useRootStore();
+  const { roomsStore, messagesStore } = useRootStore();
 
-  const messages = roomsStore.currentRoom?.messages;
+  const currentRoom = roomsStore.currentRoom;
+
+  // TODO
+  if (!currentRoom) return null;
 
   return (
     <>
@@ -23,7 +26,7 @@ export const MessagesCatalog: FC = observer(() => {
       />
       <ListWrapper>
         <List>
-          {messages?.value?.items.map((item) => (
+          {currentRoom.messages?.value?.items.map((item) => (
             <MessagesListItem key={item.id} item={item} />
           ))}
         </List>
@@ -34,7 +37,7 @@ export const MessagesCatalog: FC = observer(() => {
 
           if (!newMessage) return;
 
-          // messagesStore.send(newMessage, item.room.id);
+          messagesStore.sendMessage(currentRoom.id, newMessage);
         }}
       />
     </>
