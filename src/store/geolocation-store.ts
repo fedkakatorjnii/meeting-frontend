@@ -9,7 +9,7 @@ import {
 import { MetaData, Services, services as apiServices } from '@API';
 
 export class GeolocationStore {
-  #services: Services;
+  readonly #services: Services;
 
   private _currentPosition: MetaData<GeolocationPosition> = {
     loading: false,
@@ -65,7 +65,7 @@ export class GeolocationStore {
       },
       {},
     );
-    runInAction(() => {});
+
     window.navigator.geolocation.watchPosition(
       (e) => {
         const value = this._positions.value

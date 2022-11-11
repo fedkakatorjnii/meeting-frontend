@@ -47,7 +47,7 @@ const getInitialMapConfig = (config: PartialMapConfig): MapConfig => {
 };
 
 export class MapStore {
-  #geolocationStore: GeolocationStore;
+  readonly #geolocationStore: GeolocationStore;
   readonly map: OLMap;
   readonly view: OLView;
 

@@ -6,7 +6,6 @@ import {
   runInAction,
 } from 'mobx';
 
-import { getUserName } from '@common/helpers';
 import {
   Services,
   MetaData,
@@ -25,9 +24,9 @@ interface RoomsStores {
 }
 
 export class RoomsStore {
-  #services: Services;
-  #authStore: AuthStore;
-  #notificationsStore: NotificationsStore;
+  readonly #services: Services;
+  readonly #authStore: AuthStore;
+  readonly #notificationsStore: NotificationsStore;
 
   private _currentRoomId: RoomId | undefined = undefined;
   private _rooms: MetaData<RoomStore[]> = {

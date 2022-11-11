@@ -11,7 +11,7 @@ import { NotificationsStore } from './notifications-store';
 import { AuthStore } from './auth';
 import { RoomsStore } from './rooms';
 
-interface MessagesStores {
+interface MessagesSocketStores {
   authStore: AuthStore;
   roomsStore: RoomsStore;
   notificationsStore: NotificationsStore;
@@ -25,16 +25,16 @@ export class MessagesSocketStore {
 
   constructor(
     services: Services,
-    { authStore, roomsStore, notificationsStore }: MessagesStores,
+    { authStore, roomsStore, notificationsStore }: MessagesSocketStores,
   ) {
     this.#services = services;
     this.#authStore = authStore;
     this.#roomsStore = roomsStore;
     this.#notificationsStore = notificationsStore;
 
-    makeObservable<MessagesSocketStore>(this, {});
-
     this.#messagesListener();
+
+    makeObservable<MessagesSocketStore>(this, {});
   }
 
   #getSocket = async () => {
@@ -64,7 +64,9 @@ export class MessagesSocketStore {
         (room) => room.id === data.room,
       );
 
-      room?.addMessage(data.message);
+      if (room) {
+        room.messages.add(data.message);
+      }
     });
   };
 

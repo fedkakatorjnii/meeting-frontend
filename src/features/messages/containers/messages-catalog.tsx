@@ -26,7 +26,7 @@ export const MessagesCatalog: FC = observer(() => {
       />
       <ListWrapper>
         <List>
-          {currentRoom.messages?.value?.items.map((item) => (
+          {currentRoom.messages.values.value?.items.map((item) => (
             <MessagesListItem key={item.id} item={item} />
           ))}
         </List>

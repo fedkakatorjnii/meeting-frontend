@@ -9,13 +9,14 @@ import {
 } from 'mobx';
 
 export class AuthStore {
-  readonly _services: Services;
+  readonly #services: Services;
   private _auth: MetaData<UserInfoForToken> = {
     loading: false,
   };
 
   constructor(services: Services) {
-    this._services = services;
+    this.#services = services;
+
     makeObservable<AuthStore, '_auth'>(this, {
       login: action,
       logout: action,
@@ -51,7 +52,7 @@ export class AuthStore {
         };
       });
 
-      const authInfo = await this._services.auth.login(auth);
+      const authInfo = await this.#services.auth.login(auth);
 
       runInAction(() => {
         this._auth.value = authInfo;
@@ -75,7 +76,7 @@ export class AuthStore {
   };
 
   logout = () => {
-    this._services.auth.logout();
+    this.#services.auth.logout();
     this._auth.value = undefined;
   };
 
@@ -86,7 +87,7 @@ export class AuthStore {
           loading: true,
         };
       });
-      const authInfo = await this._services.auth.login();
+      const authInfo = await this.#services.auth.login();
 
       runInAction(() => {
         this._auth.value = authInfo;

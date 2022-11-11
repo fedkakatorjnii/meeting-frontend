@@ -17,7 +17,8 @@ import {
 } from '@API';
 
 export class UserStore {
-  #services: Services;
+  readonly #services: Services;
+
   private _users: MetaData<UserCollectionResponse> = {
     loading: false,
   };

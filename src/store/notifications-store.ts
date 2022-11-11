@@ -10,7 +10,7 @@ export interface Notification {
 
 // TODO подумать надо очередью
 export class NotificationsStore {
-  #services: Services;
+  readonly #services: Services;
   _other: Notification[] = [];
   _current: Notification[] = [];
   _count = 3;

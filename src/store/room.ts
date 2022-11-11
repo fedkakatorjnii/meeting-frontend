@@ -18,6 +18,7 @@ import {
 import { NotificationsStore } from './notifications-store';
 import { getFullUserName } from '@common/helpers';
 import { AuthStore } from './auth';
+import { MessagesStore } from './messages-store';
 
 export interface RoomStoreDefaultValue {
   id: RoomId;
@@ -31,19 +32,21 @@ interface RoomStores {
 }
 
 export class RoomStore {
-  readonly id: RoomId;
+  readonly #services: Services;
+  readonly #authStore: AuthStore;
+  readonly #notificationsStore: NotificationsStore;
 
-  #services: Services;
-  #authStore: AuthStore;
-  #notificationsStore: NotificationsStore;
+  readonly id: RoomId;
 
   private _room: MetaData<RoomResponse> = {
     loading: false,
   };
 
-  private _messages: MetaData<MessageCollectionResponse> = {
-    loading: false,
-  };
+  // private _messages: MetaData<MessageCollectionResponse> = {
+  //   loading: false,
+  // };
+
+  private _messages: MessagesStore;
 
   private _delete: MetaData<boolean> = {
     loading: false,
@@ -59,8 +62,18 @@ export class RoomStore {
     this.#notificationsStore = notificationsStore;
 
     const { id, room, messages } = defaultValue;
+    console.log('Room constructor', messages);
 
     this.id = id;
+    this._room.value = room;
+    this._messages = new MessagesStore(
+      this.#services,
+      {
+        authStore,
+        notificationsStore,
+      },
+      messages,
+    );
 
     makeObservable<RoomStore, '_room' | '_delete' | '_messages'>(this, {
       _room: observable,
@@ -70,14 +83,8 @@ export class RoomStore {
       messages: computed,
       deleteValue: computed,
       load: action,
-      addMessage: action,
       delete: action,
       clearDelete: action,
-    });
-
-    runInAction(() => {
-      this._room.value = room;
-      this._messages.value = messages;
     });
   }
 
@@ -174,23 +181,6 @@ export class RoomStore {
       loading: false,
     };
   }
-
-  addMessage = (message: MessageResponse) => {
-    if (!this._messages.value) return;
-
-    this._messages.value.items.push(message);
-    this._messages.value.total += 1;
-
-    if (message.owner.id === this.#authStore.authInfo?.userId) return;
-
-    const userName = getFullUserName(message.owner);
-    const msg = `You have received a new message from ${userName} in the ${this.name} room!`;
-
-    this.#notificationsStore.add({
-      msg,
-      severity: 'success',
-    });
-  };
 
   get messages() {
     return this._messages;
