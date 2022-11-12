@@ -27,7 +27,11 @@ export class RootStore {
       authStore: this.authStore,
       notificationsStore: this.notificationsStore,
     });
-    this.geolocationStore = new GeolocationStore(services);
+    this.geolocationStore = new GeolocationStore(services, {
+      authStore: this.authStore,
+      notificationsStore: this.notificationsStore,
+      roomsStore: this.roomsStore,
+    });
     this.mapStore = new MapStore(this.geolocationStore, {});
     this.messagesSocketStore = new MessagesSocketStore(services, {
       authStore: this.authStore,

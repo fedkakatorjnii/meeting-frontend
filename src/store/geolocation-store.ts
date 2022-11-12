@@ -1,15 +1,21 @@
-import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  runInAction,
-} from 'mobx';
+import { computed, makeObservable, observable, runInAction } from 'mobx';
 
 import { MetaData, Services, services as apiServices } from '@API';
+import { NotificationsStore } from './notifications-store';
+import { AuthStore } from './auth';
+import { RoomsStore } from './rooms';
+
+interface GeolocationStores {
+  authStore: AuthStore;
+  roomsStore: RoomsStore;
+  notificationsStore: NotificationsStore;
+}
 
 export class GeolocationStore {
   readonly #services: Services;
+  readonly #authStore: AuthStore;
+  readonly #roomsStore: RoomsStore;
+  readonly #notificationsStore: NotificationsStore;
 
   private _currentPosition: MetaData<GeolocationPosition> = {
     loading: false,
@@ -18,8 +24,14 @@ export class GeolocationStore {
     loading: false,
   };
 
-  constructor(services = apiServices) {
+  constructor(
+    services = apiServices,
+    { authStore, roomsStore, notificationsStore }: GeolocationStores,
+  ) {
     this.#services = services;
+    this.#authStore = authStore;
+    this.#roomsStore = roomsStore;
+    this.#notificationsStore = notificationsStore;
 
     makeObservable<GeolocationStore, '_currentPosition' | '_positions'>(this, {
       _currentPosition: observable,
@@ -71,12 +83,18 @@ export class GeolocationStore {
         const value = this._positions.value
           ? [...this._positions.value, e]
           : [e];
-
         runInAction(() => {
           this._positions = {
             loading: false,
             value,
           };
+        });
+
+        const msg = "The user's new location is received.";
+
+        this.#notificationsStore.add({
+          msg,
+          severity: 'info',
         });
       },
       (e) => {
@@ -86,6 +104,13 @@ export class GeolocationStore {
             loading: false,
             error: new Error('Error!'),
           };
+        });
+
+        const msg = 'Error getting user location.';
+
+        this.#notificationsStore.add({
+          msg,
+          severity: 'error',
         });
       },
       {},

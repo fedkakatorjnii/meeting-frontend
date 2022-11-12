@@ -8,6 +8,9 @@ interface NotaficationsItemProps {
   onClose: () => void;
 }
 
+const autoHideDuration = 3000;
+const resumeHideDuration = 1000;
+
 export const NotaficationsItem: React.FC<NotaficationsItemProps> = ({
   item,
   onClose,
@@ -19,6 +22,8 @@ export const NotaficationsItem: React.FC<NotaficationsItemProps> = ({
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       open={open}
       onClose={onClose}
+      autoHideDuration={autoHideDuration}
+      resumeHideDuration={resumeHideDuration}
     >
       <Alert severity={item?.severity} onClose={onClose}>
         {item?.msg}

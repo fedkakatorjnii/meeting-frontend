@@ -44,3 +44,14 @@ export interface MessageToRoom {
   room: number;
   message: MessageResponse;
 }
+
+export interface AnonDeleteMessageFromRoom {
+  room: number;
+  message: number;
+}
+
+export interface DeleteMessageFromRoom {
+  senderId: number;
+  room: number;
+  message: number;
+}

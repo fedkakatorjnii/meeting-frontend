@@ -6,6 +6,8 @@ import {
   getWsInstance,
   AnonMessageToRoom,
   MessageToRoom,
+  DeleteMessageFromRoom,
+  AnonDeleteMessageFromRoom,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
 import { AuthStore } from './auth';
@@ -32,7 +34,8 @@ export class MessagesSocketStore {
     this.#roomsStore = roomsStore;
     this.#notificationsStore = notificationsStore;
 
-    this.#messagesListener();
+    this.#sendMessagesListener();
+    this.#deleteMessagesListener();
 
     makeObservable<MessagesSocketStore>(this, {});
   }
@@ -52,8 +55,7 @@ export class MessagesSocketStore {
     return;
   };
 
-  #messagesListener = async () => {
-    console.log('#messagesListener');
+  #sendMessagesListener = async () => {
     const socket = await this.#getSocket();
 
     // TODO
@@ -68,6 +70,41 @@ export class MessagesSocketStore {
         room.messages.add(data.message);
       }
     });
+  };
+
+  #deleteMessagesListener = async () => {
+    const socket = await this.#getSocket();
+
+    // TODO
+    if (!socket) throw 'Не удалось открыть соединение.';
+
+    socket.on('deleteMsgToClient', (data: DeleteMessageFromRoom) => {
+      const room = this.#roomsStore.rooms?.find(
+        (room) => room.id === data.room,
+      );
+
+      if (room) {
+        room.messages.delete(data.message);
+      }
+    });
+  };
+
+  deleteMessage = async (room: number, message: number) => {
+    try {
+      const socket = await this.#getSocket();
+
+      // TODO
+      if (!socket) throw 'Не удалось открыть соединение.';
+
+      const data: AnonDeleteMessageFromRoom = {
+        room,
+        message,
+      };
+
+      socket.emit('deleteMsgToServer', data);
+    } catch (e) {
+      // TODO
+    }
   };
 
   sendMessage = async (room: number, message: string) => {

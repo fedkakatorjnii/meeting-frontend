@@ -62,7 +62,6 @@ export class RoomStore {
     this.#notificationsStore = notificationsStore;
 
     const { id, room, messages } = defaultValue;
-    console.log('Room constructor', messages);
 
     this.id = id;
     this._room.value = room;

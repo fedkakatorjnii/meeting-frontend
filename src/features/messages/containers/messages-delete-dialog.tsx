@@ -9,38 +9,42 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { RoomIdRequest } from '@API';
+import { MessageIdRequest, RoomIdRequest } from '@API';
 import { useRootStore } from '@common';
 
-interface RoomsDeleteDialogProps {
+interface MessagesCreateDialogProps {
   onClose: () => void;
   roomId?: RoomIdRequest;
+  messageId?: MessageIdRequest;
   visible?: boolean;
 }
 
-export const RoomsDeleteDialog: FC<RoomsDeleteDialogProps> = observer(
-  ({ visible = false, roomId, onClose }) => {
-    const { authStore, roomsStore } = useRootStore();
+export const MessagesDeleteDialog: FC<MessagesCreateDialogProps> = observer(
+  ({ visible = false, roomId, messageId, onClose }) => {
+    const { authStore, roomsStore, messagesSocketStore } = useRootStore();
     const room = roomsStore.rooms?.find((room) => room.id === roomId);
+
     const isAuth = !!authStore.authInfo;
 
     // TODO подумать что делать если комната не найдена
     if (!room) return null;
 
-    const { loading, error, value } = room.deleteValue;
+    const messages = room.messages;
+
+    const { loading, error, value } = messages.deleteValue;
 
     if (loading) {
       // TODO подумать над ожиданием
     }
 
     if (value && !error) {
-      room.clearDelete();
+      messages.clearDelete();
       onClose();
     }
 
     return (
       <Dialog open={visible} onClose={onClose}>
-        <DialogTitle>Delete Room</DialogTitle>
+        <DialogTitle>Delete Message</DialogTitle>
         <DialogContent>
           <DialogContentText>{/*  */}</DialogContentText>
         </DialogContent>
@@ -48,8 +52,10 @@ export const RoomsDeleteDialog: FC<RoomsDeleteDialogProps> = observer(
           <Button
             onClick={() => {
               if (!isAuth) return;
+              if (messageId === undefined) return;
+              if (roomId === undefined) return;
 
-              room.delete();
+              messagesSocketStore.deleteMessage(roomId, messageId);
             }}
             variant="contained"
             color="error"
@@ -57,14 +63,7 @@ export const RoomsDeleteDialog: FC<RoomsDeleteDialogProps> = observer(
           >
             ok
           </Button>
-          <Button
-            onClick={() => {
-              room.clearDelete();
-              onClose();
-            }}
-            variant="contained"
-            color="inherit"
-          >
+          <Button onClick={() => onClose()} variant="contained" color="inherit">
             cancel
           </Button>
         </DialogActions>
@@ -73,4 +72,4 @@ export const RoomsDeleteDialog: FC<RoomsDeleteDialogProps> = observer(
   },
 );
 
-RoomsDeleteDialog.displayName = 'RoomsDeleteDialog';
+MessagesDeleteDialog.displayName = 'MessagesDeleteDialog';

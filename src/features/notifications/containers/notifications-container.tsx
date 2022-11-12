@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 
 import { useRootStore } from '@common';
 import { NotaficationsItem } from '../components/notafications-item';
 
-export const NotificationsContainer: React.FC = observer(() => {
+export const NotificationsContainer: FC = observer(() => {
   const { notificationsStore } = useRootStore();
 
   const [first] = notificationsStore.list;

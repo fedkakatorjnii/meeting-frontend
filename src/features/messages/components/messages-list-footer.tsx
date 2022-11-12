@@ -27,7 +27,13 @@ export const MessagesListFooter: FC<MessagesListFooterProps> = ({ onSend }) => {
         rows={2}
         multiline
       />
-      <IconButton aria-label="back" onClick={() => onSend(message)}>
+      <IconButton
+        aria-label="back"
+        onClick={() => {
+          setMessage(undefined);
+          onSend(message);
+        }}
+      >
         <SendIcon />
       </IconButton>
     </FooterWrapper>

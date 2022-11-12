@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { List } from '@mui/material';
 
@@ -9,9 +9,13 @@ import {
   MessagesListItem,
   MessagesListFooter,
 } from '../components';
+import { MessagesDeleteDialog } from './messages-delete-dialog';
+import { MessageIdRequest } from '@API';
 
 export const MessagesCatalog: FC = observer(() => {
   const { roomsStore, messagesSocketStore } = useRootStore();
+  const [isVisibleDeleteDialog, setIsVisibleDeleteDialog] = useState(false);
+  const [deleteMessageId, setDeleteMessageId] = useState<MessageIdRequest>();
 
   const currentRoom = roomsStore.currentRoom;
 
@@ -27,7 +31,15 @@ export const MessagesCatalog: FC = observer(() => {
       <ListWrapper>
         <List>
           {currentRoom.messages.values.value?.items.map((item) => (
-            <MessagesListItem key={item.id} item={item} />
+            <MessagesListItem
+              key={item.id}
+              item={item}
+              selected={deleteMessageId === item.id}
+              onDelete={({ id }) => {
+                setDeleteMessageId(id);
+                setIsVisibleDeleteDialog(true);
+              }}
+            />
           ))}
         </List>
       </ListWrapper>
@@ -39,6 +51,12 @@ export const MessagesCatalog: FC = observer(() => {
 
           messagesSocketStore.sendMessage(currentRoom.id, newMessage);
         }}
+      />
+      <MessagesDeleteDialog
+        visible={isVisibleDeleteDialog}
+        roomId={currentRoom.id}
+        messageId={deleteMessageId}
+        onClose={() => setIsVisibleDeleteDialog(false)}
       />
     </>
   );

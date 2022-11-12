@@ -47,7 +47,6 @@ export class Messages {
   }
 
   async find(username: string) {
-    console.log('axios find', username);
     const res = await this.#apiClient.get<UserResponse>(
       `${this.#uri}/${username}`,
     );
