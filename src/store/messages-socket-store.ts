@@ -8,6 +8,10 @@ import {
   MessageToRoom,
   DeleteMessageFromRoom,
   AnonDeleteMessageFromRoom,
+  MessageIdRequest,
+  RoomId,
+  AnonReadMessagesFromRoom,
+  ReadMessageFromRoom,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
 import { AuthStore } from './auth';
@@ -35,6 +39,7 @@ export class MessagesSocketStore {
     this.#notificationsStore = notificationsStore;
 
     this.#sendMessagesListener();
+    this.#readMessagesListener();
     this.#deleteMessagesListener();
 
     makeObservable<MessagesSocketStore>(this, {});
@@ -53,6 +58,23 @@ export class MessagesSocketStore {
     }
 
     return;
+  };
+
+  #readMessagesListener = async () => {
+    const socket = await this.#getSocket();
+
+    // TODO
+    if (!socket) throw 'Не удалось открыть соединение.';
+
+    socket.on('readMsgToClient', (data: ReadMessageFromRoom) => {
+      const room = this.#roomsStore.rooms?.find(
+        (room) => room.id === data.room,
+      );
+
+      if (room) {
+        room.messages.read(data.message);
+      }
+    });
   };
 
   #sendMessagesListener = async () => {
@@ -120,6 +142,24 @@ export class MessagesSocketStore {
       };
 
       socket.emit('msgToServer', data);
+    } catch (e) {
+      // TODO
+    }
+  };
+
+  readMessages = async (room: RoomId, message: MessageIdRequest[]) => {
+    try {
+      const socket = await this.#getSocket();
+
+      // TODO
+      if (!socket) throw 'Не удалось открыть соединение.';
+
+      const data: AnonReadMessagesFromRoom = {
+        room,
+        message,
+      };
+
+      socket.emit('readMsgToServer', data);
     } catch (e) {
       // TODO
     }

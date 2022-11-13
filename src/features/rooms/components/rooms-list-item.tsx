@@ -51,7 +51,6 @@ const getSecondary = (messages: MessageCollectionResponse) => {
 
   if (!lastMessage) return null;
 
-  console.log('lastMessage', lastMessage);
   const { owner, text } = lastMessage;
   const fullUserName = getFullUserName(owner);
 

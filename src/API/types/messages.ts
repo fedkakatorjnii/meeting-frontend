@@ -40,6 +40,17 @@ export interface AnonMessageToRoom {
   message: string;
 }
 
+export interface AnonReadMessagesFromRoom {
+  room: RoomIdRequest;
+  message: MessageIdRequest[];
+}
+
+export interface ReadMessageFromRoom {
+  senderId: number;
+  room: number;
+  message: MessageResponse[];
+}
+
 export interface MessageToRoom {
   senderId: number;
   room: number;

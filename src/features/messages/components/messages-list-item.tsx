@@ -13,11 +13,24 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { MessageResponse } from '@API';
 
+interface Item {
+  message: MessageResponse;
+  isNew: boolean;
+}
+
+type PartialItem = Partial<Item>;
+
+const isItem = (value: PartialItem | undefined): value is Item => {
+  if (value?.isNew === undefined || !value?.message) return false;
+
+  return true;
+};
+
 interface MessagesListItemProps {
-  item: MessageResponse;
+  item: PartialItem;
   selected?: boolean;
-  onSelect?: (item: MessageResponse) => void;
-  onDelete?: (item: MessageResponse) => void;
+  onSelect?: (item: Item) => void;
+  onDelete?: (item: Item) => void;
   children?: ReactNode;
 }
 
@@ -25,11 +38,13 @@ export const MessagesListItem: FC<MessagesListItemProps> = ({
   item,
   onDelete,
 }) => {
-  const { text, owner } = item;
+  if (!isItem(item)) return null;
+
+  const { isNew, message } = item;
+  const { text, owner } = message;
   const messagesName = owner.firstName || owner.username;
 
-  const isOld = item.readers.find((reader) => reader.id === owner.id);
-  const badgeContent = isOld ? 0 : 1;
+  const badgeContent = isNew ? 0 : 1;
 
   return (
     <ListItemButton>

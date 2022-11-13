@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { List } from '@mui/material';
 
@@ -13,7 +13,7 @@ import { MessagesDeleteDialog } from './messages-delete-dialog';
 import { MessageIdRequest } from '@API';
 
 export const MessagesCatalog: FC = observer(() => {
-  const { roomsStore, messagesSocketStore } = useRootStore();
+  const { roomsStore, authStore, messagesSocketStore } = useRootStore();
   const [isVisibleDeleteDialog, setIsVisibleDeleteDialog] = useState(false);
   const [deleteMessageId, setDeleteMessageId] = useState<MessageIdRequest>();
 
@@ -21,6 +21,12 @@ export const MessagesCatalog: FC = observer(() => {
 
   // TODO
   if (!currentRoom) return null;
+
+  useEffect(() => {
+    const messageIds =
+      currentRoom.messages.values.value?.items.map((item) => item.id) || [];
+    messagesSocketStore.readMessages(currentRoom.id, messageIds);
+  }, []);
 
   return (
     <>
@@ -30,13 +36,18 @@ export const MessagesCatalog: FC = observer(() => {
       />
       <ListWrapper>
         <List>
-          {currentRoom.messages.values.value?.items.map((item) => (
+          {currentRoom.messages.values.value?.items.map((message) => (
             <MessagesListItem
-              key={item.id}
-              item={item}
-              selected={deleteMessageId === item.id}
-              onDelete={({ id }) => {
-                setDeleteMessageId(id);
+              key={message.id}
+              item={{
+                message,
+                isNew: !currentRoom.messages.new.find(
+                  (item) => item.id === message.id,
+                ),
+              }}
+              selected={deleteMessageId === message.id}
+              onDelete={({ message }) => {
+                setDeleteMessageId(message.id);
                 setIsVisibleDeleteDialog(true);
               }}
             />

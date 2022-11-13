@@ -51,9 +51,11 @@ export class MessagesStore {
       _messages: observable,
       values: computed,
       deleteValue: computed,
+      new: computed,
       init: action,
       load: action,
       add: action,
+      read: action,
       delete: action,
       clearDelete: action,
     });
@@ -88,6 +90,18 @@ export class MessagesStore {
     });
   };
 
+  read = (readMessages: MessageResponse[]) => {
+    if (!this._messages.value) return;
+
+    for (const message of this._messages.value.items) {
+      for (const readMessage of readMessages) {
+        if (message.id === readMessage.id) {
+          message.readers = readMessage.readers;
+        }
+      }
+    }
+  };
+
   delete = (messageId: MessageId) => {
     if (!this._messages.value) return;
 
@@ -109,9 +123,7 @@ export class MessagesStore {
     if (!this._messages.value || typeof userId !== 'number') return [];
 
     const messages = this._messages.value.items.filter((item) => {
-      const reader = item.readers.find((reader) => {
-        reader.id === userId;
-      });
+      const reader = item.readers.find((reader) => reader.id === userId);
 
       return !reader;
     });
