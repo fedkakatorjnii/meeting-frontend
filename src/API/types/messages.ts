@@ -12,6 +12,7 @@ export interface MessageResponse {
   text: string;
   owner: UserResponse;
   room: RoomResponse;
+  readers: UserResponse[];
 }
 
 export interface MessagesCollectionToRoom {
