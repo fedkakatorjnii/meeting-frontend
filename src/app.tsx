@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { NotificationsContainer } from '@features/notifications';
 
-import { HomePage, SignIn, SignUp, StartPage } from './pages';
+import { ErrorPage, HomePage, SignIn, SignUp, StartPage } from './pages';
 
 export const App: React.FC = () => (
   <>
@@ -11,6 +11,7 @@ export const App: React.FC = () => (
       <Route path="/start" element={<StartPage />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/signin" element={<SignIn />} />
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
     <NotificationsContainer />
   </>
