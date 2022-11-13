@@ -103,6 +103,22 @@ export class MessagesStore {
     };
   };
 
+  get new() {
+    const userId = this.#authStore.authInfo?.userId;
+
+    if (!this._messages.value || typeof userId !== 'number') return [];
+
+    const messages = this._messages.value.items.filter((item) => {
+      const reader = item.readers.find((reader) => {
+        reader.id === userId;
+      });
+
+      return !reader;
+    });
+
+    return messages;
+  }
+
   get values() {
     return this._messages;
   }

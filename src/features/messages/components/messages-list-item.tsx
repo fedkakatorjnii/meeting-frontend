@@ -7,6 +7,7 @@ import {
   ListItemButton,
   IconButton,
   ListItemSecondaryAction,
+  Badge,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -27,10 +28,20 @@ export const MessagesListItem: FC<MessagesListItemProps> = ({
   const { text, owner } = item;
   const messagesName = owner.firstName || owner.username;
 
+  const isOld = item.readers.find((reader) => reader.id === owner.id);
+  const badgeContent = isOld ? 0 : 1;
+
   return (
     <ListItemButton>
       <ListItemAvatar>
-        <Avatar alt={messagesName} src={owner.photo} />
+        <Badge
+          color="secondary"
+          overlap="circular"
+          variant="dot"
+          badgeContent={badgeContent}
+        >
+          <Avatar alt={messagesName} src={owner.photo} />
+        </Badge>
       </ListItemAvatar>
       <ListItemText primary={text} secondary={messagesName} />
       <ListItemSecondaryAction>

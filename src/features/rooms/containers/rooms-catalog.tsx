@@ -33,13 +33,17 @@ export const RoomsCatalog: FC = observer(() => {
           {rooms.map((room) => (
             <RoomListItem
               key={room.id}
-              item={room.value.value}
-              onSelect={({ id }) => {
-                roomsStore.changeCurrentRoom(id);
+              item={{
+                room: room.value.value,
+                messages: room.messages.values.value,
+                count: room.messages.new.length || 0,
+              }}
+              onSelect={({ room }) => {
+                roomsStore.changeCurrentRoom(room.id);
               }}
               selected={roomsStore.currentRoomId === room.id}
-              onDelete={({ id }) => {
-                setDeleteRoomId(id);
+              onDelete={({ room }) => {
+                setDeleteRoomId(room.id);
                 setIsVisibleDeleteDialog(true);
               }}
             />
