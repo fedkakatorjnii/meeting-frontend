@@ -9,7 +9,7 @@ import { MessagesContainer } from './messages-container';
 import { MapComponent } from './map';
 
 export const HomePage: FC = observer(() => {
-  const { authStore } = useRootStore();
+  const { authStore, geolocationStore } = useRootStore();
   const navigate = useNavigate();
 
   const handleRefresh = async () => {
@@ -24,6 +24,7 @@ export const HomePage: FC = observer(() => {
 
   useEffect(() => {
     handleRefresh();
+    geolocationStore.init();
   }, []);
 
   if (authStore.error) return <>ERROR!</>;

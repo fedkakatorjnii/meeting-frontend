@@ -39,8 +39,6 @@ export class GeolocationStore {
       currentPosition: computed,
       positions: computed,
     });
-
-    this._init();
   }
 
   get currentPosition() {
@@ -51,7 +49,7 @@ export class GeolocationStore {
     return this._positions;
   }
 
-  private _init() {
+  init = () => {
     runInAction(() => {
       this._currentPosition = {
         loading: true,
@@ -92,10 +90,10 @@ export class GeolocationStore {
 
         const msg = "The user's new location is received.";
 
-        this.#notificationsStore.add({
-          msg,
-          severity: 'info',
-        });
+        // this.#notificationsStore.add({
+        //   msg,
+        //   severity: 'info',
+        // });
       },
       (e) => {
         // TODO подумать надо ошибкой
@@ -115,5 +113,5 @@ export class GeolocationStore {
       },
       {},
     );
-  }
+  };
 }
