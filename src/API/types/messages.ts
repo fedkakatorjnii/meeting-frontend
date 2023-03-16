@@ -1,3 +1,4 @@
+import { Position } from 'geojson';
 import { Collection } from './collection';
 import { RoomIdRequest, RoomResponse } from './rooms';
 import { UserResponse } from './users';
@@ -42,6 +43,10 @@ export interface AnonMessageToRoom {
   // message: {
   //   text: string;
   // };
+}
+
+export interface AnonGeolocationToRoom {
+  message: Position;
 }
 
 export interface AnonReadMessagesFromRoom {

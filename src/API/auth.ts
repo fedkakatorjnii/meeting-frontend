@@ -10,6 +10,8 @@ interface APITokens {
   refresh: string;
 }
 
+const LIFETIME = 2_400_000_000_000_000_000;
+
 export class Auth {
   #instance: AxiosInstance;
   #refreshToken: string | undefined;
@@ -17,7 +19,7 @@ export class Auth {
   #lifetime: number;
   #lastRefresh = Date.now();
 
-  constructor(instance = getAxiosInstance(), lifetime = 2400000000000000000) {
+  constructor(instance = getAxiosInstance(), lifetime = LIFETIME) {
     this.#instance = instance;
     this.#lifetime = lifetime;
 
@@ -43,7 +45,7 @@ export class Auth {
     try {
       const {
         data: { access, refresh },
-      } = await this.#instance.post<APITokens>('/auth/token', {
+      } = await this.#instance.post<APITokens>('auth/token', {
         username,
         password,
       });
@@ -88,7 +90,7 @@ export class Auth {
 
       const {
         data: { access, refresh },
-      } = await this.#instance.post<APITokens>('/auth/refresh', {
+      } = await this.#instance.post<APITokens>('auth/refresh', {
         refresh: this.#refreshToken,
       });
 
