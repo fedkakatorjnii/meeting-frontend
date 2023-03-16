@@ -4,22 +4,18 @@ import OLTileLayer from 'ol/layer/Tile';
 import OLVectorLayer from 'ol/layer/Vector';
 import OSM from 'ol/source/OSM';
 import OLVectorSource from 'ol/source/Vector';
-import { Coordinate as olCoordinate } from 'ol/coordinate';
+import { Coordinate, Coordinate as olCoordinate } from 'ol/coordinate';
 import {
   action,
   computed,
   makeObservable,
   observable,
-  reaction,
   runInAction,
-  when,
 } from 'mobx';
 import { Extent } from 'ol/extent';
 import * as olProj from 'ol/proj';
 import OLFeature from 'ol/Feature';
 import OLPointGeom from 'ol/geom/Point';
-
-import { GeolocationStore } from './geolocation-store';
 
 interface MapConfig {
   srid: string;
@@ -29,13 +25,16 @@ interface MapConfig {
 }
 type PartialMapConfig = Partial<MapConfig>;
 
+const DEFAULT_CENTER = [39.70963949629932, 47.22184649681219];
+
 // TODO вынести в другой модуль и доставать из localStorage
 const getInitialMapConfig = (config: PartialMapConfig): MapConfig => {
   const srid = 'EPSG:3857';
-  // const srid = 'EPSG:4326';
-  const center = [0, 0];
   const zoom = 14;
   const enableRotation = false;
+
+  const projection = olProj.get(srid) || undefined;
+  const center = olProj.transform(DEFAULT_CENTER, 'EPSG:4326', projection);
 
   return {
     srid,
@@ -47,26 +46,25 @@ const getInitialMapConfig = (config: PartialMapConfig): MapConfig => {
 };
 
 export class MapStore {
-  readonly #geolocationStore: GeolocationStore;
   readonly map: OLMap;
   readonly view: OLView;
 
   @observable
   private _zoom: number;
   @observable
-  private _center?: olCoordinate;
+  private _center?: olCoordinate = DEFAULT_CENTER;
   @observable
   private _target?: string | HTMLElement;
 
-  #currentPosition: OLFeature;
   #mainLayer: OLVectorLayer<OLVectorSource>;
+  #backgroundLayer: OLTileLayer<OSM>;
 
-  constructor(geolocationStore: GeolocationStore, config: PartialMapConfig) {
+  #layers: Record<string, OLVectorLayer<OLVectorSource>> = {};
+
+  constructor(config: PartialMapConfig) {
     const { center, enableRotation, srid, zoom } = getInitialMapConfig(config);
     const projection = olProj.get(srid) || undefined;
 
-    this.#geolocationStore = geolocationStore;
-    this.#currentPosition = new OLFeature<OLPointGeom>();
     this.view = new OLView({
       center,
       zoom,
@@ -80,13 +78,11 @@ export class MapStore {
     this.#mainLayer = new OLVectorLayer({
       source: new OLVectorSource(),
     });
+    this.#backgroundLayer = new OLTileLayer({
+      source: new OSM(),
+    });
 
-    this.map.addLayer(
-      new OLTileLayer({
-        source: new OSM(),
-      }),
-    );
-
+    this.map.addLayer(this.#backgroundLayer);
     this.map.addLayer(this.#mainLayer);
 
     this._target = this.map.getTarget();
@@ -107,45 +103,6 @@ export class MapStore {
     });
 
     makeObservable<MapStore>(this);
-
-    reaction(
-      () => this.#geolocationStore.currentPosition.value,
-      (value) => {
-        if (!value) return;
-
-        const source = this.#mainLayer.getSource();
-
-        if (!source) return;
-
-        const currentPosition = olProj.transform(
-          [value.coords.longitude, value.coords.latitude],
-          'EPSG:4326',
-          this.view.getProjection(),
-        );
-        const feature = new OLFeature<OLPointGeom>({
-          geometry: new OLPointGeom(currentPosition),
-        });
-
-        source.clear();
-        source.addFeature(feature);
-      },
-    );
-    when(
-      () => {
-        return this.#geolocationStore.currentPosition.value !== undefined;
-      },
-      () => {
-        if (!this.#geolocationStore.currentPosition.value) return;
-
-        const { coords } = this.#geolocationStore.currentPosition.value;
-        const currentPosition = olProj.transform(
-          [coords.longitude, coords.latitude],
-          'EPSG:4326',
-          this.view.getProjection(),
-        );
-        this.view.setCenter(currentPosition);
-      },
-    );
   }
 
   @computed
@@ -197,4 +154,52 @@ export class MapStore {
   private _checkCenter = () => {
     runInAction(() => (this._center = this.map.getView().getCenter()));
   };
+
+  @action
+  addLayer = (name: string): OLVectorLayer<OLVectorSource> => {
+    if (this.#layers[name]) return this.#layers[name];
+
+    const layer = new OLVectorLayer({
+      source: new OLVectorSource(),
+      className: name,
+    });
+
+    this.#layers[name] = layer;
+    this.map.addLayer(layer);
+
+    return layer;
+  };
+
+  @action
+  removeLayer = (name: string) => {
+    const layer = this.#layers[name];
+
+    if (!layer) return;
+
+    this.map.removeLayer(layer);
+
+    delete this.#layers[name];
+  };
+
+  @action
+  addOnLayer = (name: string, coords: Coordinate) => {
+    const source = this.#layers[name]?.getSource();
+
+    if (!source) return;
+
+    const currentPosition = olProj.transform(
+      coords,
+      'EPSG:4326',
+      this.view.getProjection(),
+    );
+    const geom = new OLPointGeom(currentPosition);
+    const feature = new OLFeature(geom);
+
+    source?.addFeature(feature);
+  };
+
+  @action
+  clearLayer(name: string) {
+    this.#layers[name]?.getSource()?.clear();
+  }
 }

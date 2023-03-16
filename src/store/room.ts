@@ -1,6 +1,5 @@
 import {
   action,
-  autorun,
   computed,
   makeObservable,
   observable,
@@ -13,12 +12,11 @@ import {
   RoomResponse,
   RoomId,
   MessageCollectionResponse,
-  MessageResponse,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
-import { getFullUserName } from '@common/helpers';
 import { AuthStore } from './auth';
 import { MessagesStore } from './messages-store';
+import { GeolocationsStore } from './geolocations-store';
 
 export interface RoomStoreDefaultValue {
   id: RoomId;
@@ -42,11 +40,8 @@ export class RoomStore {
     loading: false,
   };
 
-  // private _messages: MetaData<MessageCollectionResponse> = {
-  //   loading: false,
-  // };
-
   private _messages: MessagesStore;
+  private _geolocations: GeolocationsStore;
 
   private _delete: MetaData<boolean> = {
     loading: false,
@@ -72,6 +67,17 @@ export class RoomStore {
         notificationsStore,
       },
       messages,
+    );
+
+    this._geolocations = new GeolocationsStore(
+      this.#services,
+      {
+        authStore,
+        notificationsStore,
+      },
+      {
+        roomId: id,
+      },
     );
 
     makeObservable<RoomStore, '_room' | '_delete' | '_messages'>(this, {
@@ -169,6 +175,10 @@ export class RoomStore {
 
   get value() {
     return this._room;
+  }
+
+  get geolocations() {
+    return this._geolocations;
   }
 
   get deleteValue() {

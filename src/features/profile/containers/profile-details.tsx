@@ -74,7 +74,7 @@ const ProfileListItem: FC<ProfileListItemProps> = ({ title, value }) => {
 interface ProfileDetailProps {}
 
 export const ProfileDetail: FC<ProfileDetailProps> = observer(() => {
-  const { profileStore, geolocationStore } = useRootStore();
+  const { profileStore, currentGeolocationStore } = useRootStore();
   const { loading, error, value } = profileStore.user;
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export const ProfileDetail: FC<ProfileDetailProps> = observer(() => {
 
   const name = value.username;
 
-  const currentCoords = geolocationStore.currentPosition.value?.coords;
+  const currentCoords = currentGeolocationStore.currentPosition.value?.coords;
   const position = currentCoords
     ? `${coordinatesFormatToString({
         type: 'lat',

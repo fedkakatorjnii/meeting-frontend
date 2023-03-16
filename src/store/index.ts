@@ -5,7 +5,7 @@ import { MainStore } from './main-store';
 import { UserStore } from './user';
 import { RoomsStore } from './rooms';
 import { NotificationsStore } from './notifications-store';
-import { GeolocationStore } from './geolocation-store';
+import { CurrentGeolocationStore } from './current-geolocation-store';
 import { MapStore } from './map';
 import { MessagesSocketStore } from './messages-socket-store';
 
@@ -16,7 +16,7 @@ export class RootStore {
   userStore: UserStore;
   roomsStore: RoomsStore;
   notificationsStore: NotificationsStore;
-  geolocationStore: GeolocationStore;
+  currentGeolocationStore: CurrentGeolocationStore;
   mapStore: MapStore;
   messagesSocketStore: MessagesSocketStore;
 
@@ -32,12 +32,13 @@ export class RootStore {
       authStore: this.authStore,
       notificationsStore: this.notificationsStore,
     });
-    this.geolocationStore = new GeolocationStore(services, {
+    this.mapStore = new MapStore({});
+    this.currentGeolocationStore = new CurrentGeolocationStore(services, {
       authStore: this.authStore,
       notificationsStore: this.notificationsStore,
       roomsStore: this.roomsStore,
+      mapStore: this.mapStore,
     });
-    this.mapStore = new MapStore(this.geolocationStore, {});
     this.messagesSocketStore = new MessagesSocketStore(services, {
       authStore: this.authStore,
       notificationsStore: this.notificationsStore,
