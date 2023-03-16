@@ -71,16 +71,14 @@ const ProfileListItem: FC<ProfileListItemProps> = ({ title, value }) => {
   );
 };
 
-interface ProfileDetailProps {
-  userId: UserId;
-}
+interface ProfileDetailProps {}
 
-export const ProfileDetail: FC<ProfileDetailProps> = observer(({ userId }) => {
-  const { userStore, geolocationStore } = useRootStore();
-  const { loading, error, value } = userStore.user;
+export const ProfileDetail: FC<ProfileDetailProps> = observer(() => {
+  const { profileStore, geolocationStore } = useRootStore();
+  const { loading, error, value } = profileStore.user;
 
   useEffect(() => {
-    userStore.find(userId);
+    profileStore.load();
   }, []);
 
   if (error) return <>ERROR!</>;

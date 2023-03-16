@@ -13,7 +13,7 @@ export const ProfileContainer: FC<ProfileContainerProps> = observer(() => {
 
   if (!authInfo) return null;
 
-  return <ProfileDetail userId={authInfo.userId} />;
+  return <ProfileDetail />;
 });
 
 ProfileContainer.displayName = 'ProfileContainer';
