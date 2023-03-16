@@ -36,7 +36,7 @@ export const RoomsCatalog: FC = observer(() => {
               item={{
                 room: room.value.value,
                 messages: room.messages.values.value,
-                count: room.messages.new.length || 0,
+                count: room.messages.news.length || 0,
               }}
               onSelect={({ room }) => {
                 roomsStore.changeCurrentRoom(room.id);

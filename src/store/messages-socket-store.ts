@@ -49,7 +49,7 @@ export class MessagesSocketStore {
     try {
       const token = await this.#services.auth.getAuthorization();
 
-      // TODO
+      // TODO что делать если не авторизован
       if (!token) return;
 
       return getWsInstance(socketUrl, token);
@@ -129,7 +129,11 @@ export class MessagesSocketStore {
     }
   };
 
-  sendMessage = async (room: number, message: string) => {
+  sendMessage = async (room: number, text: string) => {
+    const message = text.trim();
+
+    if (!message) return;
+
     try {
       const socket = await this.#getSocket();
 
@@ -138,7 +142,7 @@ export class MessagesSocketStore {
 
       const data: AnonMessageToRoom = {
         room,
-        message: message.trim(),
+        message,
       };
 
       socket.emit('msgToServer', data);
@@ -147,19 +151,21 @@ export class MessagesSocketStore {
     }
   };
 
-  readMessages = async (room: RoomId, message: MessageIdRequest[]) => {
+  readMessages = async (roomId: RoomId, messageIds: MessageIdRequest[]) => {
+    if (!messageIds.length) return;
+
     try {
       const socket = await this.#getSocket();
 
       // TODO
       if (!socket) throw 'Не удалось открыть соединение.';
 
-      const data: AnonReadMessagesFromRoom = {
-        room,
-        message,
+      const message: AnonReadMessagesFromRoom = {
+        room: roomId,
+        message: messageIds,
       };
 
-      socket.emit('readMsgToServer', data);
+      socket.emit('readMsgToServer', message);
     } catch (e) {
       // TODO
     }

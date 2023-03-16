@@ -16,29 +16,22 @@ interface MessagesCreateDialogProps {
   onClose: () => void;
   roomId?: RoomIdRequest;
   messageId?: MessageIdRequest;
-  visible?: boolean;
 }
 
 export const MessagesDeleteDialog: FC<MessagesCreateDialogProps> = observer(
-  ({ visible = false, roomId, messageId, onClose }) => {
+  ({ roomId, messageId, onClose }) => {
     const { authStore, roomsStore, messagesSocketStore } = useRootStore();
     const room = roomsStore.rooms?.find((room) => room.id === roomId);
-
     const isAuth = !!authStore.authInfo;
 
-    // TODO подумать что делать если комната не найдена
     if (!room) return null;
+    if (!room.messages.values.value) return null;
+    const { items: messages } = room.messages.values.value;
 
-    const messages = room.messages;
+    const message = messages.find((message) => message.id === messageId);
+    const visible = messageId !== undefined && message !== undefined;
 
-    const { loading, error, value } = messages.deleteValue;
-
-    if (loading) {
-      // TODO подумать над ожиданием
-    }
-
-    if (value && !error) {
-      messages.clearDelete();
+    if (messageId !== undefined && message === undefined) {
       onClose();
     }
 

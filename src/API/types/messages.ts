@@ -38,11 +38,19 @@ export type PartialNewMessageRequest = Partial<NewMessageRequest>;
 export interface AnonMessageToRoom {
   room: number;
   message: string;
+  // TODO определиться с форматом
+  // message: {
+  //   text: string;
+  // };
 }
 
 export interface AnonReadMessagesFromRoom {
   room: RoomIdRequest;
   message: MessageIdRequest[];
+  // TODO определиться с форматом
+  // message: {
+  //   messageIds: MessageIdRequest[];
+  // };
 }
 
 export interface ReadMessageFromRoom {

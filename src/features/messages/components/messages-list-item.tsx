@@ -1,6 +1,5 @@
 import React, { FC, ReactNode } from 'react';
 import {
-  ListItem,
   ListItemAvatar,
   ListItemText,
   Avatar,
@@ -12,6 +11,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { MessageResponse } from '@API';
+import { addOrJoinStr } from '@common/helpers';
 
 interface Item {
   message: MessageResponse;
@@ -36,18 +36,33 @@ interface MessagesListItemProps {
 
 export const MessagesListItem: FC<MessagesListItemProps> = ({
   item,
+  selected,
+  onSelect,
   onDelete,
 }) => {
   if (!isItem(item)) return null;
 
   const { isNew, message } = item;
   const { text, owner } = message;
-  const messagesName = owner.firstName || owner.username;
 
   const badgeContent = isNew ? 0 : 1;
+  let messagesName = '';
+
+  messagesName = addOrJoinStr({
+    oldValue: messagesName,
+    newValue: owner.lastName,
+  });
+  messagesName = addOrJoinStr({
+    oldValue: messagesName,
+    newValue: owner.firstName,
+  });
+  messagesName = addOrJoinStr({
+    oldValue: messagesName,
+    newValue: owner.username,
+  });
 
   return (
-    <ListItemButton>
+    <ListItemButton onClick={() => onSelect?.(item)} selected={selected}>
       <ListItemAvatar>
         <Badge
           color="secondary"

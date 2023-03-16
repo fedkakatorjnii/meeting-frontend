@@ -1,16 +1,11 @@
-import {
-  action,
-  computed,
-  makeObservable,
-  observable,
-  runInAction,
-} from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 
 import {
   Services,
   MetaData,
   MessageCollectionResponse,
   MessageResponse,
+  MessageIdRequest,
   MessageId,
 } from '@API';
 import { NotificationsStore } from './notifications-store';
@@ -26,6 +21,8 @@ export class MessagesStore {
   readonly #services: Services;
   readonly #authStore: AuthStore;
   readonly #notificationsStore: NotificationsStore;
+
+  private _currentMessageId: MessageIdRequest | undefined = undefined;
 
   private _messages: MetaData<MessageCollectionResponse> = {
     loading: false,
@@ -46,18 +43,26 @@ export class MessagesStore {
 
     this._messages.value = messages;
 
-    makeObservable<MessagesStore, '_delete' | '_messages'>(this, {
+    makeObservable<
+      MessagesStore,
+      '_delete' | '_messages' | '_currentMessageId'
+    >(this, {
       _delete: observable,
       _messages: observable,
+      _currentMessageId: observable,
       values: computed,
       deleteValue: computed,
-      new: computed,
+      news: computed,
       init: action,
       load: action,
       add: action,
       read: action,
       delete: action,
       clearDelete: action,
+      changeCurrentMessage: action,
+      isNewMessage: action,
+      currentMessageId: computed,
+      currentMessage: computed,
     });
   }
 
@@ -102,7 +107,7 @@ export class MessagesStore {
     }
   };
 
-  delete = (messageId: MessageId) => {
+  delete = (messageId: MessageIdRequest) => {
     if (!this._messages.value) return;
 
     this._messages.value.items = this._messages.value.items.filter(
@@ -117,18 +122,36 @@ export class MessagesStore {
     };
   };
 
-  get new() {
-    const userId = this.#authStore.authInfo?.userId;
+  get news() {
+    if (!this.#authStore.authInfo) return [];
 
-    if (!this._messages.value || typeof userId !== 'number') return [];
+    const { userId } = this.#authStore.authInfo;
 
-    const messages = this._messages.value.items.filter((item) => {
-      const reader = item.readers.find((reader) => reader.id === userId);
+    if (!this._messages.value) return [];
 
-      return !reader;
-    });
+    const { items } = this._messages.value;
 
-    return messages;
+    return items.filter(
+      (message) =>
+        message.owner.id !== userId &&
+        !message.readers.find((reader) => reader.id === userId),
+    );
+  }
+
+  get newIds() {
+    return this.news.map((message) => message.id);
+  }
+
+  isNewMessage(id: MessageId) {
+    return !!this.news.find((message) => message.id === id);
+  }
+
+  changeCurrentMessage(messageId?: MessageIdRequest) {
+    if (this._currentMessageId === messageId) {
+      this._currentMessageId = undefined;
+    } else {
+      this._currentMessageId = messageId;
+    }
   }
 
   get values() {
@@ -137,5 +160,15 @@ export class MessagesStore {
 
   get deleteValue() {
     return this._delete;
+  }
+
+  get currentMessageId() {
+    return this._currentMessageId;
+  }
+
+  get currentMessage() {
+    return this._messages.value?.items.find(
+      (item) => item.id === this._currentMessageId,
+    );
   }
 }
