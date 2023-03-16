@@ -52,9 +52,8 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 export const MainBar: FC<MainBarProps> = observer(() => {
-  const { mainStore } = useRootStore();
+  const { mainStore, roomsStore } = useRootStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  React.useState<null | HTMLElement>(null);
 
   const isMenuOpen = !!anchorEl;
 
@@ -65,6 +64,13 @@ export const MainBar: FC<MainBarProps> = observer(() => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
+  const newMessagesCount = roomsStore.rooms?.reduce(
+    (acc, current) => acc + current.messages.news.length,
+    0,
+  );
+  // TODO сделать отдельный счётчик
+  const newNotificationCount = newMessagesCount;
 
   return (
     <AppBar position="fixed">
@@ -91,19 +97,19 @@ export const MainBar: FC<MainBarProps> = observer(() => {
         <Box sx={{ display: { md: 'flex' } }}>
           <IconButton
             size="large"
-            aria-label="show 4 new mails"
+            aria-label={`show ${newMessagesCount} new mails`}
             color="inherit"
           >
-            <Badge badgeContent={4} color="error">
+            <Badge badgeContent={newMessagesCount} color="error">
               <MailIcon />
             </Badge>
           </IconButton>
           <IconButton
             size="large"
-            aria-label="show 17 new notifications"
+            aria-label={`show ${newNotificationCount} new notifications`}
             color="inherit"
           >
-            <Badge badgeContent={17} color="error">
+            <Badge badgeContent={newNotificationCount} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
