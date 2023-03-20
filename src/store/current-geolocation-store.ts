@@ -25,6 +25,7 @@ import { NotificationsStore } from './notifications-store';
 import { AuthStore } from './auth';
 import { RoomsStore } from './rooms';
 import { MapStore } from './map';
+import { debounce } from '@mui/material';
 
 interface CurrentGeolocationStores {
   authStore: AuthStore;
@@ -131,54 +132,63 @@ export class CurrentGeolocationStore {
       };
     });
 
-    window.navigator.geolocation.watchPosition(
-      (e) => {
-        console.log('watchPosition', e);
-        const value = this._positions.value
-          ? [...this._positions.value, e]
-          : [e];
-        this.#addCurrentPosition(e);
+    const errorCb = (e: GeolocationPositionError) => {
+      // TODO подумать надо ошибкой
+      runInAction(() => {
+        this._positions = {
+          loading: false,
+          error: new Error('Error!'),
+        };
+      });
 
-        runInAction(() => {
-          this._positions = {
-            loading: false,
-            value,
-          };
-        });
-        runInAction(() => {
-          this._currentPosition = {
-            loading: false,
-            value: e,
-          };
-        });
-        this.#sendGeolocationListener(e);
+      const msg = 'Error getting user location.';
 
-        // TODO подумать стоит ли как-то отображать
-        // const msg = "The user's new location is received.";
+      this.#notificationsStore.add({
+        msg,
+        severity: 'error',
+      });
+    };
 
-        // this.#notificationsStore.add({
-        //   msg,
-        //   severity: 'info',
-        // });
-      },
-      (e) => {
-        // TODO подумать надо ошибкой
-        runInAction(() => {
-          this._positions = {
-            loading: false,
-            error: new Error('Error!'),
-          };
-        });
-
-        const msg = 'Error getting user location.';
-
-        this.#notificationsStore.add({
-          msg,
-          severity: 'error',
-        });
-      },
+    window.navigator.geolocation.getCurrentPosition(
+      this.#geolocation,
+      errorCb,
       {},
     );
+
+    window.navigator.geolocation.watchPosition(
+      debounce(this.#geolocation, 5000),
+      errorCb,
+      {},
+    );
+  };
+
+  #geolocation = (e: GeolocationPosition) => {
+    console.log('watchPosition', e);
+
+    const value = this._positions.value ? [...this._positions.value, e] : [e];
+    this.#addCurrentPosition(e);
+
+    runInAction(() => {
+      this._positions = {
+        loading: false,
+        value,
+      };
+    });
+    runInAction(() => {
+      this._currentPosition = {
+        loading: false,
+        value: e,
+      };
+    });
+    this.#sendGeolocationListener(e);
+
+    // TODO подумать стоит ли как-то отображать
+    // const msg = "The user's new location is received.";
+
+    // this.#notificationsStore.add({
+    //   msg,
+    //   severity: 'info',
+    // });
   };
 
   goTo = () => {
@@ -232,6 +242,8 @@ export class CurrentGeolocationStore {
       // TODO
       if (!socket) throw 'Не удалось открыть соединение.';
 
+      const coords = [latitude, longitude];
+      console.log('coords', coords);
       const data: AnonGeolocationToRoom = {
         message: [latitude, longitude],
       };

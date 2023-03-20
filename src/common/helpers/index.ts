@@ -7,3 +7,4 @@ export * from './is-number';
 export * from './is-string';
 export * from './is-string-or-number';
 export * from './add-or-join-str';
+export * from './debounce';
