@@ -9,11 +9,20 @@ export class Geolocations {
     this.#apiClient = apiClient;
   }
 
-  async list(roomId?: number) {
+  async list({
+    ownerId,
+    roomId,
+  }: {
+    ownerId?: number;
+    roomId?: number;
+    _page?: number;
+    _page_size?: number;
+  }) {
     const res = await this.#apiClient.get<GeolocationCollectionResponse>(
       `${this.#uri}`,
       {
         params: {
+          ownerId,
           roomId,
           _page: 0,
           _page_size: 0,

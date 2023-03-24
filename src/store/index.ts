@@ -32,7 +32,7 @@ export class RootStore {
       authStore: this.authStore,
       notificationsStore: this.notificationsStore,
     });
-    this.mapStore = new MapStore({});
+    this.mapStore = new MapStore(services, {});
     this.currentGeolocationStore = new CurrentGeolocationStore(services, {
       authStore: this.authStore,
       notificationsStore: this.notificationsStore,

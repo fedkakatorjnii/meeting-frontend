@@ -1,10 +1,3 @@
-import OLView from 'ol/View';
-import OLMap from 'ol/Map';
-import OLTileLayer from 'ol/layer/Tile';
-import OLVectorLayer from 'ol/layer/Vector';
-import OSM from 'ol/source/OSM';
-import OLVectorSource from 'ol/source/Vector';
-import { Coordinate, Coordinate as olCoordinate } from 'ol/coordinate';
 import {
   action,
   computed,
@@ -12,10 +5,22 @@ import {
   observable,
   runInAction,
 } from 'mobx';
+import OLMap from 'ol/Map';
+import OLView from 'ol/View';
+import OLTileLayer from 'ol/layer/Tile';
+import OLVectorLayer from 'ol/layer/Vector';
+import OSM from 'ol/source/OSM';
+import OLVectorSource from 'ol/source/Vector';
+import OLStyle from 'ol/style/Style';
+import { Coordinate, Coordinate as olCoordinate } from 'ol/coordinate';
 import { Extent } from 'ol/extent';
 import * as olProj from 'ol/proj';
 import OLFeature from 'ol/Feature';
 import OLPointGeom from 'ol/geom/Point';
+import OLLineString from 'ol/geom/LineString';
+
+import { AnonGeolocationToRoom, getWsInstance, Services } from '@API';
+import { socketUrl } from '@common';
 
 interface MapConfig {
   srid: string;
@@ -46,6 +51,7 @@ const getInitialMapConfig = (config: PartialMapConfig): MapConfig => {
 };
 
 export class MapStore {
+  readonly #services: Services;
   readonly map: OLMap;
   readonly view: OLView;
 
@@ -61,7 +67,8 @@ export class MapStore {
 
   #layers: Record<string, OLVectorLayer<OLVectorSource>> = {};
 
-  constructor(config: PartialMapConfig) {
+  constructor(services: Services, config: PartialMapConfig) {
+    this.#services = services;
     const { center, enableRotation, srid, zoom } = getInitialMapConfig(config);
     const projection = olProj.get(srid) || undefined;
 
@@ -156,12 +163,16 @@ export class MapStore {
   };
 
   @action
-  addLayer = (name: string): OLVectorLayer<OLVectorSource> => {
+  addLayer = (
+    name: string,
+    options?: { style?: OLStyle },
+  ): OLVectorLayer<OLVectorSource> => {
     if (this.#layers[name]) return this.#layers[name];
 
     const layer = new OLVectorLayer({
       source: new OLVectorSource(),
       className: name,
+      style: options?.style,
     });
 
     this.#layers[name] = layer;
@@ -182,7 +193,7 @@ export class MapStore {
   };
 
   @action
-  addOnLayer = (name: string, coords: Coordinate) => {
+  addPointOnLayer = (name: string, coords: Coordinate) => {
     const source = this.#layers[name]?.getSource();
 
     if (!source) return;
@@ -199,7 +210,52 @@ export class MapStore {
   };
 
   @action
+  addLineOnLayer = (name: string, coords: Coordinate[]) => {
+    const source = this.#layers[name]?.getSource();
+
+    if (!source) return;
+
+    const currentCoords = coords.map((item) =>
+      olProj.transform(item, 'EPSG:4326', this.view.getProjection()),
+    );
+    const geom = new OLLineString(currentCoords);
+    const feature = new OLFeature(geom);
+
+    source?.addFeature(feature);
+  };
+
+  @action
   clearLayer(name: string) {
     this.#layers[name]?.getSource()?.clear();
   }
+
+  #getSocket = async () => {
+    try {
+      const token = await this.#services.auth.getAuthorization();
+
+      // TODO
+      if (!token) return;
+
+      return getWsInstance(socketUrl, token);
+    } catch (e) {
+      // TODO
+    }
+
+    return;
+  };
+
+  /**
+   * Служебный метод для отправки координат.
+   */
+  #send = async ([longitude, latitude]: Coordinate) => {
+    const socket = await this.#getSocket();
+    const data: AnonGeolocationToRoom = {
+      message: [latitude, longitude],
+    };
+
+    // TODO
+    if (!socket) throw 'Не удалось открыть соединение.';
+
+    socket.emit('geolocationToServer', data);
+  };
 }

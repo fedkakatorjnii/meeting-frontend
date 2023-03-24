@@ -45,7 +45,8 @@ const getDefaultCurrentPositionStyle = () => {
   const stroke = new OLStroke({
     // color: '#3399CC',
     color: '#ff3d00',
-    width: 1.25,
+    // width: 1.25,
+    width: 2,
   });
   const image = new OLCircle({
     fill: fill,
@@ -97,7 +98,7 @@ export class CurrentGeolocationStore {
 
     makeObservable<
       CurrentGeolocationStore,
-      '_currentPosition' | '_positions' | '_geolocations'
+      '_currentPosition' | '_positions' | '_geolocations' | '_load'
     >(this, {
       _currentPosition: observable,
       _positions: observable,
@@ -106,6 +107,7 @@ export class CurrentGeolocationStore {
       positions: computed,
       geolocations: computed,
       goTo: action,
+      _load: action,
     });
   }
 
@@ -122,10 +124,11 @@ export class CurrentGeolocationStore {
   }
 
   init = () => {
-    const layer = this.#mapStore.addLayer(GEOLOCATION_LAYER);
     const style = getDefaultCurrentPositionStyle();
 
-    layer.setStyle(style);
+    this.#mapStore.addLayer(GEOLOCATION_LAYER, { style });
+    this.#mapStore.addLayer(GEOLOCATION_WAY_LAYER, { style });
+    this._load();
 
     runInAction(() => {
       this._currentPosition = {
@@ -249,7 +252,20 @@ export class CurrentGeolocationStore {
     const currentPosition = [longitude, latitude];
 
     this.#mapStore.clearLayer(GEOLOCATION_LAYER);
-    this.#mapStore.addOnLayer(GEOLOCATION_LAYER, currentPosition);
+    this.#mapStore.addPointOnLayer(GEOLOCATION_LAYER, currentPosition);
+  };
+
+  #changeWay = (data: GeolocationCollectionResponse) => {
+    const coordinates = data.items.map(
+      ({
+        point: {
+          coordinates: [latitude, longitude],
+        },
+      }) => [longitude, latitude],
+    );
+
+    this.#mapStore.clearLayer(GEOLOCATION_WAY_LAYER);
+    this.#mapStore.addLineOnLayer(GEOLOCATION_WAY_LAYER, coordinates);
   };
 
   #getSocket = async () => {
@@ -286,4 +302,41 @@ export class CurrentGeolocationStore {
       // TODO
     }
   };
+
+  private async _load() {
+    try {
+      this._geolocations = {
+        loading: true,
+      };
+
+      const ownerId = this.#authStore.authInfo?.userId;
+
+      // TODO придумать как не запрашивать пока нет ownerId
+      if (!ownerId) return;
+
+      const res = await this.#services.geolocations.list({
+        ownerId,
+      });
+
+      this.#changeWay(res);
+
+      runInAction(() => {
+        this._geolocations.value = res;
+      });
+    } catch (e) {
+      let error = new Error('Ошибка получения списка геолокаций.');
+
+      if (e instanceof Error) {
+        error = e;
+      }
+
+      runInAction(() => {
+        this._geolocations.error = error;
+      });
+    } finally {
+      runInAction(() => {
+        this._geolocations.loading = false;
+      });
+    }
+  }
 }
