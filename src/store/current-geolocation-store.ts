@@ -6,7 +6,6 @@ import {
   runInAction,
 } from 'mobx';
 import * as olProj from 'ol/proj';
-import { Point as OLPoint } from 'ol/geom';
 import OLStyle from 'ol/style/Style';
 import OLFill from 'ol/style/Fill';
 import OLStroke from 'ol/style/Stroke';
@@ -26,6 +25,7 @@ import { AuthStore } from './auth';
 import { RoomsStore } from './rooms';
 import { MapStore } from './map';
 import { debounce } from '@mui/material';
+import { calculateCenterOn } from '@common/helpers/calculate-center-on';
 
 interface CurrentGeolocationStores {
   authStore: AuthStore;
@@ -35,6 +35,7 @@ interface CurrentGeolocationStores {
 }
 
 const GEOLOCATION_LAYER = 'CURRENT_GEOLOCATION';
+const GEOLOCATION_WAY_LAYER = 'CURRENT_GEOLOCATION_WAY';
 
 const getDefaultCurrentPositionStyle = () => {
   const fill = new OLFill({
@@ -163,9 +164,8 @@ export class CurrentGeolocationStore {
   };
 
   #geolocation = (e: GeolocationPosition) => {
-    console.log('watchPosition', e);
-
     const value = this._positions.value ? [...this._positions.value, e] : [e];
+
     this.#addCurrentPosition(e);
 
     runInAction(() => {
@@ -191,20 +191,54 @@ export class CurrentGeolocationStore {
     // });
   };
 
-  goTo = () => {
+  goTo = (offset?: {
+    left?: number;
+    right?: number;
+    top?: number;
+    bottom?: number;
+  }) => {
     if (!this._currentPosition.value) return;
 
+    const left = offset?.left || 0;
+    const right = offset?.right || 0;
+    const top = offset?.top || 0;
+    const bottom = offset?.bottom || 0;
+
+    const xOffset = Math.abs(right - left);
+    const yOffset = Math.abs(top - bottom);
+
     const { latitude, longitude } = this._currentPosition.value.coords;
-    const currentPosition = olProj.transform(
+
+    let currentPosition = olProj.transform(
       [longitude, latitude],
       'EPSG:4326',
       this.#mapStore.view.getProjection(),
     );
 
-    this.#mapStore.view.fit(new OLPoint(currentPosition), {
-      maxZoom: 14,
-      duration: 1000,
-    });
+    const view = this.#mapStore.map.getView();
+    const size = this.#mapStore.map.getSize();
+
+    if (size) {
+      const resolution = view.getResolution();
+      const rotation = view.getRotation();
+      const [x, y] = size;
+
+      const position = [(x + xOffset) / 2, (y + yOffset) / 2];
+
+      currentPosition = calculateCenterOn(
+        currentPosition,
+        size,
+        position,
+        rotation,
+        resolution,
+      );
+    }
+
+    this.#mapStore.view.animate({ center: currentPosition });
+    // this.#mapStore.view.fit(new OLPoint(currentPosition), {
+    //   maxZoom: 14,
+    //   duration: 1000,
+    // });
     // this.#mapStore.view.setCenter(currentPosition);
   };
 
@@ -243,9 +277,8 @@ export class CurrentGeolocationStore {
       if (!socket) throw 'Не удалось открыть соединение.';
 
       const coords = [latitude, longitude];
-      console.log('coords', coords);
       const data: AnonGeolocationToRoom = {
-        message: [latitude, longitude],
+        message: coords,
       };
 
       socket.emit('geolocationToServer', data);

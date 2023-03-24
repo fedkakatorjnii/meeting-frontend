@@ -1,17 +1,17 @@
-import { User } from '@API/user';
 import { Point } from 'geojson';
 
 import { Collection } from './collection';
+import { UserResponse } from './users';
 
 export type GeolocationId = number;
 export type GeolocationIdRequest = GeolocationId;
 
-interface GeolocationResponse {
+export interface GeolocationResponse {
   id: GeolocationId;
   point: Point;
   createdAt: string;
   updatedAt: string | null;
-  owner: User;
+  owner: UserResponse;
 }
 
 export type GeolocationCollectionResponse = Collection<GeolocationResponse>;

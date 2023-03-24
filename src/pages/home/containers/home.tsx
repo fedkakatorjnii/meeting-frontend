@@ -18,7 +18,7 @@ const fabStyle: SxProps = {
 const SIZE_LEFT_RIGHT_PANEL = 499;
 
 export const HomePage: FC = observer(() => {
-  const { currentGeolocationStore } = useRootStore();
+  const { mainStore, currentGeolocationStore } = useRootStore();
   const theme = useTheme();
 
   const transitionDuration = {
@@ -48,7 +48,16 @@ export const HomePage: FC = observer(() => {
             aria-label="location"
             color="primary"
             disabled={!currentGeolocationStore.currentPosition.value}
-            onClick={currentGeolocationStore.goTo}
+            onClick={() => {
+              const left = mainStore.isLeftPanelOpen
+                ? SIZE_LEFT_RIGHT_PANEL
+                : undefined;
+              const right = mainStore.isRightPanelOpen
+                ? SIZE_LEFT_RIGHT_PANEL
+                : undefined;
+
+              currentGeolocationStore.goTo({ left, right });
+            }}
           >
             <NearMeIcon />
           </Fab>
