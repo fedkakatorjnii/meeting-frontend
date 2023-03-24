@@ -24,6 +24,7 @@ export class AuthStore {
       _auth: observable,
       error: computed,
       isLoading: computed,
+      authInfo: computed,
       isAuth: computed,
     });
   }

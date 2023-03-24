@@ -1,19 +1,10 @@
 import React, { FC, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { SxProps } from '@mui/system';
 import NearMeIcon from '@mui/icons-material/NearMe';
 
 import { LeftDrawer, MainBar, RightDrawer, useRootStore } from '@common';
-import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  CssBaseline,
-  Fab,
-  useTheme,
-  Zoom,
-} from '@ui';
+import { Box, CssBaseline, Fab, useTheme, Zoom } from '@ui';
 import { ProfileContainer } from '@features/profile';
 import { MessagesContainer } from './messages-container';
 import { MapComponent } from './map';
@@ -24,39 +15,20 @@ const fabStyle: SxProps = {
   right: 16,
 };
 
+const SIZE_LEFT_RIGHT_PANEL = 499;
+
 export const HomePage: FC = observer(() => {
-  const { authStore, currentGeolocationStore } = useRootStore();
+  const { currentGeolocationStore } = useRootStore();
   const theme = useTheme();
-  const navigate = useNavigate();
 
   const transitionDuration = {
     enter: theme.transitions.duration.enteringScreen,
     exit: theme.transitions.duration.leavingScreen,
   };
 
-  const handleRefresh = async () => {
-    try {
-      await authStore.refresh();
-
-      if (!authStore.isAuth) navigate('/start');
-    } catch (error) {
-      navigate('/start');
-    }
-  };
-
   useEffect(() => {
-    handleRefresh();
     currentGeolocationStore.init();
   }, []);
-
-  if (authStore.error) return <>ERROR!</>;
-  if (authStore.isLoading) {
-    return (
-      <Backdrop open={authStore.isLoading}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    );
-  }
 
   return (
     <Box sx={{ display: 'flex' }}>
